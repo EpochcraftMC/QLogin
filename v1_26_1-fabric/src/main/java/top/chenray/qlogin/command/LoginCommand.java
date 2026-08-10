@@ -6,26 +6,26 @@ import top.chenray.qlogin.database.DatabaseManager;
 import top.chenray.qlogin.util.TextUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 
 /**
  * /login <密码> 和 /l <密码> - 登录命令
  */
 public class LoginCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
         // /login <password>
-        dispatcher.register(CommandManager.literal("login")
-            .then(CommandManager.argument("password", StringArgumentType.word())
+        dispatcher.register(Commands.literal("login")
+            .then(Commands.argument("password", StringArgumentType.word())
                 .executes(context -> {
-                    ServerCommandSource source = context.getSource();
-                    ServerPlayerEntity player = source.getPlayer();
+                    CommandSourceStack source = context.getSource();
+                    ServerPlayer player = source.getPlayer();
                     if (player == null) {
-                        source.sendError(Text.literal("§c此命令只能由玩家执行"));
+                        source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
                         return 0;
                     }
                     String password = StringArgumentType.getString(context, "password");
@@ -35,13 +35,13 @@ public class LoginCommand {
         );
 
         // /l <password> (别名)
-        dispatcher.register(CommandManager.literal("l")
-            .then(CommandManager.argument("password", StringArgumentType.word())
+        dispatcher.register(Commands.literal("l")
+            .then(Commands.argument("password", StringArgumentType.word())
                 .executes(context -> {
-                    ServerCommandSource source = context.getSource();
-                    ServerPlayerEntity player = source.getPlayer();
+                    CommandSourceStack source = context.getSource();
+                    ServerPlayer player = source.getPlayer();
                     if (player == null) {
-                        source.sendError(Text.literal("§c此命令只能由玩家执行"));
+                        source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
                         return 0;
                     }
                     String password = StringArgumentType.getString(context, "password");
@@ -51,9 +51,9 @@ public class LoginCommand {
         );
     }
 
-    private static int executeLogin(ServerPlayerEntity player, String password) {
+    private static int executeLogin(ServerPlayer player, String password) {
         LoginManager loginManager = LoginManager.getInstance();
-        LoginState state = loginManager.getState(player.getUuid());
+        LoginState state = loginManager.getState(player.getUUID());
         DatabaseManager db = DatabaseManager.getInstance();
 
         if (state == LoginState.LOGGED_IN) {
@@ -61,17 +61,17 @@ public class LoginCommand {
             return 0;
         }
 
-        if (!db.isPlayerRegistered(player.getUuid())) {
+        if (!db.isPlayerRegistered(player.getUUID())) {
             TextUtils.sendMsg(player, "register.exists");
             return 0;
         }
 
-        if (db.verifyPassword(player.getUuid(), password)) {
-            loginManager.setLoggedIn(player.getUuid());
-            loginManager.resetLoginFails(player.getUuid());
+        if (db.verifyPassword(player.getUUID(), password)) {
+            loginManager.setLoggedIn(player.getUUID());
+            loginManager.resetLoginFails(player.getUUID());
 
             String ip = loginManager.getPlayerIp(player);
-            db.updateLoginInfo(player.getUuid(), ip);
+            db.updateLoginInfo(player.getUUID(), ip);
 
             TextUtils.sendSuccess(player, "login.success", player.getName().getString());
             TextUtils.sendTitle(player, "登录成功", "欢迎回来！");
@@ -79,12 +79,12 @@ public class LoginCommand {
             LOGGER.info("Player {} logged in", player.getName().getString());
             return 1;
         } else {
-            boolean banned = loginManager.recordLoginFail(player.getUuid());
+            boolean banned = loginManager.recordLoginFail(player.getUUID());
             int maxAttempts = top.chenray.qlogin.config.ModConfig.getInstance().getMaxLoginAttempts();
 
             if (banned) {
                 TextUtils.sendMsg(player, "ban.too_many_attempts");
-                player.networkHandler.disconnect(Text.literal(TextUtils.t("ban.too_many_attempts")));
+                player.connection.disconnect(Component.literal(TextUtils.t("ban.too_many_attempts")));
             } else {
                 TextUtils.sendMsg(player, "login.fail", maxAttempts);
             }

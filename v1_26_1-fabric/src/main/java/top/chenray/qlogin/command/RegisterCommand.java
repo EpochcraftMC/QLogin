@@ -7,26 +7,26 @@ import top.chenray.qlogin.database.DatabaseManager;
 import top.chenray.qlogin.util.TextUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 
 /**
  * /register <密码> <确认密码> - 注册命令
  */
 public class RegisterCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
-        dispatcher.register(CommandManager.literal("register")
-            .then(CommandManager.argument("password", StringArgumentType.word())
-                .then(CommandManager.argument("confirmPassword", StringArgumentType.word())
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
+        dispatcher.register(Commands.literal("register")
+            .then(Commands.argument("password", StringArgumentType.word())
+                .then(Commands.argument("confirmPassword", StringArgumentType.word())
                     .executes(context -> {
-                        ServerCommandSource source = context.getSource();
-                        ServerPlayerEntity player = source.getPlayer();
+                        CommandSourceStack source = context.getSource();
+                        ServerPlayer player = source.getPlayer();
                         if (player == null) {
-                            source.sendError(Text.literal("§c此命令只能由玩家执行"));
+                            source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
                             return 0;
                         }
 
@@ -40,9 +40,9 @@ public class RegisterCommand {
         );
     }
 
-    private static int executeRegister(ServerPlayerEntity player, String password, String confirmPassword) {
+    private static int executeRegister(ServerPlayer player, String password, String confirmPassword) {
         LoginManager loginManager = LoginManager.getInstance();
-        LoginState state = loginManager.getState(player.getUuid());
+        LoginState state = loginManager.getState(player.getUUID());
         DatabaseManager db = DatabaseManager.getInstance();
 
         // 检查是否已登录
@@ -52,7 +52,7 @@ public class RegisterCommand {
         }
 
         // 检查是否已注册
-        if (db.isPlayerRegistered(player.getUuid())) {
+        if (db.isPlayerRegistered(player.getUUID())) {
             TextUtils.sendMsg(player, "register.exists");
             return 0;
         }
@@ -73,9 +73,9 @@ public class RegisterCommand {
         // 执行注册
         String ip = loginManager.getPlayerIp(player);
 
-        if (db.registerPlayer(player.getUuid(), player.getName().getString(), password, ip)) {
-            loginManager.setLoggedIn(player.getUuid());
-            loginManager.resetLoginFails(player.getUuid());
+        if (db.registerPlayer(player.getUUID(), player.getName().getString(), password, ip)) {
+            loginManager.setLoggedIn(player.getUUID());
+            loginManager.resetLoginFails(player.getUUID());
             TextUtils.sendMsg(player, "register.success", player.getName().getString());
             TextUtils.sendTitle(player, "注册成功", "欢迎加入服务器！");
             LOGGER.info("Player {} registered", player.getName().getString());

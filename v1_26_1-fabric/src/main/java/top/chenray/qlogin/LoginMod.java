@@ -11,8 +11,8 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class LoginMod implements ModInitializer {
         // 服务器启动时初始化
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             SERVER = server;
-            Path configDir = server.getRunDirectory().resolve("config").resolve("loginmod");
+            Path configDir = server.getServerDirectory().resolve("config").resolve("loginmod");
             ModConfig.load(configDir);
             LanguageManager.init();
             DatabaseManager.init(configDir);
@@ -83,20 +83,20 @@ public class LoginMod implements ModInitializer {
     @SuppressWarnings("unchecked")
     private static class v1_21TitleHelper implements TitleHelper {
         @Override
-        public void sendTitle(ServerPlayerEntity player, String title, String subtitle) {
+        public void sendTitle(ServerPlayer player, String title, String subtitle) {
             try {
-                var handler = player.networkHandler;
-                Class<?> animPkt = Class.forName("net.minecraft.network.packet.s2c.play.SetTitleAnimationS2CPacket");
-                Class<?> subtitlePkt = Class.forName("net.minecraft.network.packet.s2c.play.SetSubtitleS2CPacket");
-                Class<?> titlePkt = Class.forName("net.minecraft.network.packet.s2c.play.SetTitleS2CPacket");
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) animPkt.getConstructor(int.class, int.class, int.class)
+                var handler = player.connection;
+                Class<?> animPkt = Class.forName("net.minecraft.network.protocol.game.ClientboundSetTitleAnimationPacket");
+                Class<?> subtitlePkt = Class.forName("net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket");
+                Class<?> titlePkt = Class.forName("net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket");
+                handler.send((net.minecraft.network.protocol.Packet<?>) animPkt.getConstructor(int.class, int.class, int.class)
                     .newInstance(10, 60, 20));
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) subtitlePkt.getConstructor(Text.class)
-                    .newInstance(Text.literal("§e" + subtitle)));
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) titlePkt.getConstructor(Text.class)
-                    .newInstance(Text.literal("§6" + title)));
+                handler.send((net.minecraft.network.protocol.Packet<?>) subtitlePkt.getConstructor(Component.class)
+                    .newInstance(Component.literal("§e" + subtitle)));
+                handler.send((net.minecraft.network.protocol.Packet<?>) titlePkt.getConstructor(Component.class)
+                    .newInstance(Component.literal("§6" + title)));
             } catch (Exception e) {
-                player.sendMessage(Text.literal("§6" + title + " §e" + subtitle), true);
+                player.displayClientMessage(Component.literal("§6" + title + " §e" + subtitle), true);
             }
         }
     }

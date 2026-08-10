@@ -7,26 +7,26 @@ import top.chenray.qlogin.database.DatabaseManager;
 import top.chenray.qlogin.util.TextUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 
 /**
  * /changepassword <旧密码> <新密码> - 修改密码命令
  */
 public class ChangePasswordCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
-        dispatcher.register(CommandManager.literal("changepassword")
-            .then(CommandManager.argument("oldPassword", StringArgumentType.word())
-                .then(CommandManager.argument("newPassword", StringArgumentType.word())
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
+        dispatcher.register(Commands.literal("changepassword")
+            .then(Commands.argument("oldPassword", StringArgumentType.word())
+                .then(Commands.argument("newPassword", StringArgumentType.word())
                     .executes(context -> {
-                        ServerCommandSource source = context.getSource();
-                        ServerPlayerEntity player = source.getPlayer();
+                        CommandSourceStack source = context.getSource();
+                        ServerPlayer player = source.getPlayer();
                         if (player == null) {
-                            source.sendError(Text.literal("§c此命令只能由玩家执行"));
+                            source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
                             return 0;
                         }
                         String oldPassword = StringArgumentType.getString(context, "oldPassword");
@@ -38,44 +38,44 @@ public class ChangePasswordCommand {
         );
     }
 
-    private static int executeChangePassword(ServerPlayerEntity player, String oldPassword, String newPassword) {
+    private static int executeChangePassword(ServerPlayer player, String oldPassword, String newPassword) {
         LoginManager loginManager = LoginManager.getInstance();
-        LoginState state = loginManager.getState(player.getUuid());
+        LoginState state = loginManager.getState(player.getUUID());
         DatabaseManager db = DatabaseManager.getInstance();
 
         // 必须已登录
         if (state != LoginState.LOGGED_IN) {
-            player.sendMessage(Text.literal("§c请先登录后再修改密码"));
+            player.displayClientMessage(Component.literal("§c请先登录后再修改密码"), false);
             return 0;
         }
 
         // 验证旧密码
-        if (!db.verifyPassword(player.getUuid(), oldPassword)) {
-            player.sendMessage(Text.literal("§c旧密码错误"));
+        if (!db.verifyPassword(player.getUUID(), oldPassword)) {
+            player.displayClientMessage(Component.literal("§c旧密码错误"), false);
             return 0;
         }
 
         // 验证新密码长度
         ModConfig config = ModConfig.getInstance();
         if (newPassword.length() < config.getPasswordMinLength() || newPassword.length() > config.getPasswordMaxLength()) {
-            player.sendMessage(Text.literal("§c新密码长度必须在 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 个字符之间"));
+            player.displayClientMessage(Component.literal("§c新密码长度必须在 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 个字符之间"), false);
             return 0;
         }
 
         // 新旧密码不能相同
         if (oldPassword.equals(newPassword)) {
-            player.sendMessage(Text.literal("§c新密码不能与旧密码相同"));
+            player.displayClientMessage(Component.literal("§c新密码不能与旧密码相同"), false);
             return 0;
         }
 
         // 执行修改
-        player.sendMessage(Text.literal("§7正在修改密码..."));
-        if (db.changePassword(player.getUuid(), newPassword)) {
+        player.displayClientMessage(Component.literal("§7正在修改密码..."), false);
+        if (db.changePassword(player.getUUID(), newPassword)) {
             TextUtils.sendSuccess(player, "password.change_success");
             LOGGER.info("玩家 {} 已修改密码", player.getName().getString());
             return 1;
         } else {
-            player.sendMessage(Text.literal("§c密码修改失败，请稍后重试"));
+            player.displayClientMessage(Component.literal("§c密码修改失败，请稍后重试"), false);
             return 0;
         }
     }
