@@ -2,7 +2,6 @@ package top.chenray.qlogin.mixin;
 
 import top.chenray.qlogin.LoginManager;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.ParseResults;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Mixin - 拦截命令执行 (1.21)
@@ -20,9 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CommandManagerMixin {
 
     @Inject(method = "performCommand", at = @At("HEAD"), cancellable = true)
-    private void onExecute(ParseResults<CommandSourceStack> parse, String command,
-                            CommandDispatcher<CommandSourceStack> dispatcher, CommandSourceStack source,
-                            CallbackInfo ci) {
+    private void onExecute(CommandDispatcher<CommandSourceStack> dispatcher,
+                            CommandSourceStack source, String command,
+                            CallbackInfoReturnable<Integer> cir) {
         if (source.getEntity() instanceof ServerPlayer player) {
             LoginManager loginManager = LoginManager.getInstance();
 
@@ -38,7 +37,7 @@ public class CommandManagerMixin {
             }
 
             player.displayClientMessage(Component.literal("§7[§b登录系统§7] §c✘ 请先登录后再执行命令！"), false);
-            ci.cancel();
+            cir.setReturnValue(0);
         }
     }
 }
