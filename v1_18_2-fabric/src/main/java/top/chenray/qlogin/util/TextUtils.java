@@ -36,28 +36,28 @@ public class TextUtils {
      * 发送翻译消息（带前缀）
      */
     public static void sendMsg(ServerPlayerEntity player, String key, Object... args) {
-        player.sendMessage(prefixed(new LiteralText(LanguageManager.tr(key, args))));
+        player.sendMessage(prefixed(new LiteralText(LanguageManager.tr(key, args))), false);
     }
 
     /**
      * 发送错误消息
      */
     public static void sendError(ServerPlayerEntity player, String key, Object... args) {
-        player.sendMessage(prefixed(new LiteralText(LanguageManager.tr(key, args))));
+        player.sendMessage(prefixed(new LiteralText(LanguageManager.tr(key, args))), false);
     }
 
     /**
      * 发送成功消息
      */
     public static void sendSuccess(ServerPlayerEntity player, String key, Object... args) {
-        player.sendMessage(prefixed(new LiteralText(LanguageManager.tr(key, args))));
+        player.sendMessage(prefixed(new LiteralText(LanguageManager.tr(key, args))), false);
     }
 
     /**
      * 发送警告消息
      */
     public static void sendWarning(ServerPlayerEntity player, String key, Object... args) {
-        player.sendMessage(prefixed(new LiteralText(LanguageManager.tr(key, args))));
+        player.sendMessage(prefixed(new LiteralText(LanguageManager.tr(key, args))), false);
     }
 
     /**

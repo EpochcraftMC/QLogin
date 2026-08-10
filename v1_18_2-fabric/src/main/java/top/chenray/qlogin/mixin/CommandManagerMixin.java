@@ -38,7 +38,7 @@ public class CommandManagerMixin {
                 return;
             }
 
-            player.sendMessage(new LiteralText("§7[§b登录系统§7] §c✘ 请先登录后再执行命令！"));
+            player.sendMessage(new LiteralText("§7[§b登录系统§7] §c✘ 请先登录后再执行命令！"), false);
             ci.cancel();
         }
     }

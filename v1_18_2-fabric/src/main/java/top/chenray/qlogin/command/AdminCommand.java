@@ -214,8 +214,8 @@ public class AdminCommand {
             source.sendFeedback(TextUtils.success("已重置玩家 §e" + targetName + "§a 的密码"), false);
 
             if (target != null) {
-                target.sendMessage(TextUtils.warning("管理员 §e" + source.getName() + "§e 已重置你的密码"));
-                target.sendMessage(TextUtils.info("新密码: §e" + newPassword + "§b，请尽快修改"));
+                target.sendMessage(TextUtils.warning("管理员 §e" + source.getName() + "§e 已重置你的密码"), false);
+                target.sendMessage(TextUtils.info("新密码: §e" + newPassword + "§b，请尽快修改"), false);
             }
 
             LOGGER.info("管理员 {} 重置了玩家 {} 的密码", source.getName(), targetName);
