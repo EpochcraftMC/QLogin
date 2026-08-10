@@ -20,7 +20,7 @@ public class AdminCommand {
             .requires(source -> source.hasPermissionLevel(3))
             .then(CommandManager.literal("reload")
                 .executes(context -> {
-                    ModConfig.load(context.getSource().getServer().getRunDirectory().resolve("config").resolve("loginmod"));
+                    ModConfig.load(context.getSource().getServer().getRunDirectory().toPath().resolve("config").resolve("loginmod"));
                     LanguageManager.reload();
                     TextUtils.sendMsg(context.getSource().getPlayer(), "admin.reload");
                     return 1;

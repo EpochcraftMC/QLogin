@@ -103,7 +103,7 @@ public class LoginManager {
     public String getPlayerIp(ServerPlayerEntity player) {
         try {
             if (player.networkHandler != null && player.networkHandler.connection != null) {
-                var address = player.networkHandler.connection.getRemoteAddress();
+                var address = player.networkHandler.connection.getAddress();
                 if (address instanceof InetSocketAddress) {
                     return ((InetSocketAddress) address).getAddress().getHostAddress();
                 }
