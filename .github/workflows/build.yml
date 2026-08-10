@@ -1,12 +1,12 @@
 # ============================================================
 # QLogin v1_14_3-forge standalone build
-# Branch: v1.12.2-forge | Java: 8
+# Branch: v1.14.3-forge | Java: 8
 # ============================================================
 name: Build v1_14_3-forge
 
 on:
   push:
-    branches: [ "main", "v1.12.2-forge" ]
+    branches: [ "main", "v1.14.3-forge" ]
     paths-ignore:
       - '**.md'
       - '.gitignore'
