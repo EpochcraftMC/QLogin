@@ -80,7 +80,7 @@ public class TextUtils {
      * 发送 ActionBar 消息给玩家
      */
     public static void sendActionBar(ServerPlayer player, String key, Object... args) {
-        player.displayClientMessage(Component.literal(LanguageManager.tr(key, args)), true);
+        player.sendSystemMessage(Component.literal(LanguageManager.tr(key, args)), true);
     }
 
     /**

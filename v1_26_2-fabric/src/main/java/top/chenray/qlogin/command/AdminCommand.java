@@ -36,7 +36,8 @@ public class AdminCommand {
                                  CommandBuildContext registryAccess,
                                  Commands.CommandSelection environment) {
         var loginmod = Commands.literal("loginmod")
-            .requires(source -> source.hasPermission(4));
+            .requires(source -> source.permissions() instanceof net.minecraft.server.permissions.LevelBasedPermissionSet s
+                && s.level().isEqualOrHigherThan(net.minecraft.server.permissions.PermissionLevel.OWNERS)); // OP 权限等级 4
 
         // /loginmod reload
         loginmod.then(Commands.literal("reload")
