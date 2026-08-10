@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,11 +93,11 @@ public class LoginMod implements ModInitializer {
                 handler.sendPacket((net.minecraft.network.packet.Packet<?>) animPkt.getConstructor(int.class, int.class, int.class)
                     .newInstance(10, 60, 20));
                 handler.sendPacket((net.minecraft.network.packet.Packet<?>) subtitlePkt.getConstructor(Text.class)
-                    .newInstance(Text.literal("§e" + subtitle)));
+                    .newInstance(new LiteralText("§e" + subtitle)));
                 handler.sendPacket((net.minecraft.network.packet.Packet<?>) titlePkt.getConstructor(Text.class)
-                    .newInstance(Text.literal("§6" + title)));
+                    .newInstance(new LiteralText("§6" + title)));
             } catch (Exception e) {
-                player.sendMessage(Text.literal("§6" + title + " §e" + subtitle), true);
+                player.sendMessage(new LiteralText("§6" + title + " §e" + subtitle), true);
             }
         }
     }

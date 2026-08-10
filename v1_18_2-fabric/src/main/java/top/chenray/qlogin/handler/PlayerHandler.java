@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 
@@ -53,7 +54,7 @@ public class PlayerHandler {
         // 聊天消息拦截 - 未登录玩家不能发言 (1.21 Fabric API)
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
             if (!loginManager.isLoggedIn(sender.getUuid())) {
-                sender.sendMessage(Text.literal("§7[§b登录系统§7] §c✘ 请先登录后再发言！"));
+                sender.sendMessage(new LiteralText("§7[§b登录系统§7] §c✘ 请先登录后再发言！"));
                 return false; // 取消消息
             }
             return true;
@@ -108,7 +109,7 @@ public class PlayerHandler {
 
             // 检查登录超时
             if (loginManager.isLoginTimeout(player.getUuid())) {
-                player.networkHandler.disconnect(Text.literal(TextUtils.t("login.timeout_kick")));
+                player.networkHandler.disconnect(new LiteralText(TextUtils.t("login.timeout_kick")));
                 LOGGER.warn("Player {} login timeout, kicked", player.getName().getString());
                 continue;
             }

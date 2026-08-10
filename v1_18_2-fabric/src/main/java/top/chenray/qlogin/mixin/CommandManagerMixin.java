@@ -5,6 +5,7 @@ import com.mojang.brigadier.ParseResults;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,7 +38,7 @@ public class CommandManagerMixin {
                 return;
             }
 
-            player.sendMessage(Text.literal("§7[§b登录系统§7] §c✘ 请先登录后再执行命令！"));
+            player.sendMessage(new LiteralText("§7[§b登录系统§7] §c✘ 请先登录后再执行命令！"));
             ci.cancel();
         }
     }

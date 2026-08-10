@@ -15,6 +15,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 import java.sql.ResultSet;
@@ -132,11 +133,11 @@ public class AdminCommand {
         ServerCommandSource source = context.getSource();
         if (ModConfig.reload()) {
             LanguageManager.reload();
-            source.sendFeedback(TextUtils.prefixed(Text.literal(LanguageManager.tr("admin.reload"))), false);
+            source.sendFeedback(TextUtils.prefixed(new LiteralText(LanguageManager.tr("admin.reload"))), false);
             LOGGER.info("Admin {} reloaded config", source.getName());
             return 1;
         } else {
-            source.sendFeedback(TextUtils.prefixed(Text.literal(LanguageManager.tr("admin.reload_fail"))), false);
+            source.sendFeedback(TextUtils.prefixed(new LiteralText(LanguageManager.tr("admin.reload_fail"))), false);
             return 0;
         }
     }
@@ -157,7 +158,7 @@ public class AdminCommand {
             success = db.unregisterPlayerByUuid(target.getUuid());
             if (success) {
                 LoginManager.getInstance().setUnregistered(target.getUuid());
-                target.networkHandler.disconnect(Text.literal("§e你的账号已被管理员强制注销，请重新注册"));
+                target.networkHandler.disconnect(new LiteralText("§e你的账号已被管理员强制注销，请重新注册"));
             }
         } else {
             // 离线玩家 - 用用户名删除
@@ -238,19 +239,19 @@ public class AdminCommand {
             return 0;
         }
 
-        source.sendFeedback(Text.literal("§7用户名: §e" + info.get("username")), false);
-        source.sendFeedback(Text.literal("§7UUID: §f" + info.get("uuid")), false);
-        source.sendFeedback(Text.literal("§7注册时间: §b" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        source.sendFeedback(new LiteralText("§7用户名: §e" + info.get("username")), false);
+        source.sendFeedback(new LiteralText("§7UUID: §f" + info.get("uuid")), false);
+        source.sendFeedback(new LiteralText("§7注册时间: §b" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             .format(new java.util.Date((Long) info.get("register_time")))), false);
-        source.sendFeedback(Text.literal("§7最后登录: §b" + (info.get("last_login") != null ?
+        source.sendFeedback(new LiteralText("§7最后登录: §b" + (info.get("last_login") != null ?
             new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date((Long) info.get("last_login"))) : "无")), false);
-        source.sendFeedback(Text.literal("§7登录失败: §c" + info.get("login_fail_count")), false);
+        source.sendFeedback(new LiteralText("§7登录失败: §c" + info.get("login_fail_count")), false);
 
         @SuppressWarnings("unchecked")
         var ipHistory = (java.util.List<String>) new com.google.gson.Gson().fromJson(
             (String) info.get("ip_history"), java.util.List.class);
         if (ipHistory != null && !ipHistory.isEmpty()) {
-            source.sendFeedback(Text.literal("§7IP历史: §f" + String.join("§7, §f", ipHistory)), false);
+            source.sendFeedback(new LiteralText("§7IP历史: §f" + String.join("§7, §f", ipHistory)), false);
         }
 
         return 1;

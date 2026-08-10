@@ -9,6 +9,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 /**
@@ -24,7 +25,7 @@ public class LoginCommand {
                     ServerCommandSource source = context.getSource();
                     ServerPlayerEntity player = source.getPlayer();
                     if (player == null) {
-                        source.sendError(Text.literal("§c此命令只能由玩家执行"));
+                        source.sendError(new LiteralText("§c此命令只能由玩家执行"));
                         return 0;
                     }
                     String password = StringArgumentType.getString(context, "password");
@@ -40,7 +41,7 @@ public class LoginCommand {
                     ServerCommandSource source = context.getSource();
                     ServerPlayerEntity player = source.getPlayer();
                     if (player == null) {
-                        source.sendError(Text.literal("§c此命令只能由玩家执行"));
+                        source.sendError(new LiteralText("§c此命令只能由玩家执行"));
                         return 0;
                     }
                     String password = StringArgumentType.getString(context, "password");
@@ -83,7 +84,7 @@ public class LoginCommand {
 
             if (banned) {
                 TextUtils.sendMsg(player, "ban.too_many_attempts");
-                player.networkHandler.disconnect(Text.literal(TextUtils.t("ban.too_many_attempts")));
+                player.networkHandler.disconnect(new LiteralText(TextUtils.t("ban.too_many_attempts")));
             } else {
                 TextUtils.sendMsg(player, "login.fail", maxAttempts);
             }

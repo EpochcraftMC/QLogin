@@ -5,6 +5,7 @@ import top.chenray.qlogin.database.DatabaseManager;
 import top.chenray.qlogin.util.TextUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 
@@ -75,7 +76,7 @@ public class LoginManager {
 
         // 检查 IP 是否被封禁（内存封禁）
         if (isIpBanned(ip)) {
-            player.networkHandler.disconnect(Text.literal(TextUtils.t("ban.ip_kick")));
+            player.networkHandler.disconnect(new LiteralText(TextUtils.t("ban.ip_kick")));
             return;
         }
 

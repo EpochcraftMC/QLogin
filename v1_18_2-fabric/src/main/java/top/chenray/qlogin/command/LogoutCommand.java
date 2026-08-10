@@ -7,6 +7,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 /**
@@ -20,7 +21,7 @@ public class LogoutCommand {
                 ServerCommandSource source = context.getSource();
                 ServerPlayerEntity player = source.getPlayer();
                 if (player == null) {
-                    source.sendError(Text.literal("§c此命令只能由玩家执行"));
+                    source.sendError(new LiteralText("§c此命令只能由玩家执行"));
                     return 0;
                 }
                 return executeLogout(player);
@@ -33,13 +34,13 @@ public class LogoutCommand {
         LoginState state = loginManager.getState(player.getUuid());
 
         if (state != LoginState.LOGGED_IN) {
-            player.sendMessage(Text.literal("§c你还没有登录"));
+            player.sendMessage(new LiteralText("§c你还没有登录"));
             return 0;
         }
 
         loginManager.setLoggedOut(player.getUuid());
         TextUtils.sendWarning(player, "logout.success");
-        player.sendMessage(Text.literal("§b使用 §6/login <密码> §b重新登录"));
+        player.sendMessage(new LiteralText("§b使用 §6/login <密码> §b重新登录"));
         LOGGER.info("玩家 {} 已登出", player.getName().getString());
         return 1;
     }
