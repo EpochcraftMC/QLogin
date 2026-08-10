@@ -1,9 +1,15 @@
 plugins {
-    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'fabric-loom' version '1.17.12'
 }
 
 base {
-    archivesName = "${rootProject.archives_base_name}-1.21.1"
+    archivesName = "${rootProject.archives_base_name}-26.1.1"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
 sourceSets {
@@ -22,15 +28,15 @@ repositories {
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${rootProject.mc_1_21_1}"
-    mappings "net.fabricmc:yarn:${rootProject.yarn_1_21_1}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_1_21_1}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_1_21_1}"
+    minecraft "com.mojang:minecraft:${rootProject.mc_26_1_1}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_26_1_1}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_26_1_1}"
     include "org.xerial:sqlite-jdbc:${rootProject.sqlite_jdbc_version}"
 }
 
 loom {
-    mixin.defaultRefmapName = "QLogin-1.21.1-refmap.json"
+    mixin.defaultRefmapName = "QLogin-26.1.1-refmap.json"
 }
 
 processResources {
@@ -44,4 +50,9 @@ processResources {
 
 tasks.withType(Jar).configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Override root project's release setting
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 25
 }
