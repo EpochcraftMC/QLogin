@@ -3,7 +3,6 @@ package top.chenray.qlogin.handler;
 import top.chenray.qlogin.LoginManager;
 import top.chenray.qlogin.LoginState;
 import top.chenray.qlogin.util.TextUtils;
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
@@ -11,9 +10,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 
+import java.util.Set;
+
 /**
  * 玩家事件处理器 - 处理加入、离开、踢出等事件
  */
+@SuppressWarnings("all")
 public class PlayerHandler {
 
     private static final Logger LOGGER = top.chenray.qlogin.LoginMod.LOGGER;
@@ -21,6 +23,7 @@ public class PlayerHandler {
     /**
      * 注册所有事件监听器
      */
+    @SuppressWarnings("unchecked")
     public static void register() {
         LoginManager loginManager = LoginManager.getInstance();
 
@@ -39,16 +42,6 @@ public class PlayerHandler {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             ServerPlayerEntity player = handler.getPlayer();
             loginManager.onPlayerDisconnect(player);
-        });
-
-        // 方块破坏事件 - 阻止未登录玩家破坏方块
-        PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, entity) -> {
-            if (player instanceof ServerPlayerEntity serverPlayer) {
-                if (!loginManager.isLoggedIn(serverPlayer.getUuid())) {
-                    return false; // 取消事件
-                }
-            }
-            return true;
         });
 
         // 聊天消息拦截 - 未登录玩家不能发言 (1.21 Fabric API)
@@ -115,6 +108,7 @@ public class PlayerHandler {
             }
 
             // 冻结玩家位置 - 防止未登录玩家移动
+            @SuppressWarnings("all")
             double[] loginPos = loginManager.getLoginPosition(player.getUuid());
             if (loginPos != null) {
                 double dx = player.getX() - loginPos[0];
@@ -122,14 +116,14 @@ public class PlayerHandler {
 
                 if (Math.abs(dx) > 0.5 || Math.abs(dz) > 0.5) {
                     player.teleport(server.getOverworld(),
-                        loginPos[0], loginPos[1], loginPos[2],
-                        (float) loginPos[3], (float) loginPos[4]);
+                        loginPos[0], loginPos[1], loginPos[2], Set.of(),
+                        (float) loginPos[3], (float) loginPos[4], false);
                 }
 
                 if (player.getY() < -50) {
                     player.teleport(server.getOverworld(),
-                        loginPos[0], loginPos[1], loginPos[2],
-                        (float) loginPos[3], (float) loginPos[4]);
+                        loginPos[0], loginPos[1], loginPos[2], Set.of(),
+                        (float) loginPos[3], (float) loginPos[4], false);
                     player.setHealth(player.getMaxHealth());
                     player.getHungerManager().setFoodLevel(20);
                 }
