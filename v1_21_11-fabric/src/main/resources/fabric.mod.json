@@ -17,7 +17,11 @@
     "qlogin.mixins.json"
   ],
   "depends": {
+<<<<<<< HEAD
     "fabricloader": ">=0.16.10",
+=======
+    "fabricloader": ">=0.18.1",
+>>>>>>> 6460541 (Rebuild v1.21.11-fabric: loom 1.17.12, Gradle 9.6.1, teleport Set<PositionFlag>, PermissionPredicate API, Path.toPath removal)
     "minecraft": "~1.21.11",
     "java": ">=21",
     "fabric-api": "*"

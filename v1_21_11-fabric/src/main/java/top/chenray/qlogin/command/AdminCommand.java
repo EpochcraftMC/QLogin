@@ -36,7 +36,7 @@ public class AdminCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         var loginmod = CommandManager.literal("loginmod")
-            .requires(source -> source.hasPermissionLevel(4)); // OP 权限等级 4
+            .requires(CommandManager.requirePermissionLevel(CommandManager.ADMINS_CHECK)); // OP 权限等级 4
 
         // /loginmod reload - 重载配置
         loginmod.then(CommandManager.literal("reload")
