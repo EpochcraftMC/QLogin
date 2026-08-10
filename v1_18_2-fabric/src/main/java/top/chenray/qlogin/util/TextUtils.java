@@ -29,7 +29,7 @@ public class TextUtils {
      * 发送系统消息给玩家
      */
     public static void sendMessage(ServerPlayerEntity player, Text message) {
-        player.sendMessage(message);
+        player.sendMessage(message, false);
     }
 
     /**

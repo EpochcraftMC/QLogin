@@ -45,13 +45,13 @@ public class ChangePasswordCommand {
 
         // 必须已登录
         if (state != LoginState.LOGGED_IN) {
-            player.sendMessage(new LiteralText("§c请先登录后再修改密码"));
+            player.sendMessage(new LiteralText("§c请先登录后再修改密码"), false);
             return 0;
         }
 
         // 验证旧密码
         if (!db.verifyPassword(player.getUuid(), oldPassword)) {
-            player.sendMessage(new LiteralText("§c旧密码错误"));
+            player.sendMessage(new LiteralText("§c旧密码错误"), false);
             return 0;
         }
 
@@ -64,18 +64,18 @@ public class ChangePasswordCommand {
 
         // 新旧密码不能相同
         if (oldPassword.equals(newPassword)) {
-            player.sendMessage(new LiteralText("§c新密码不能与旧密码相同"));
+            player.sendMessage(new LiteralText("§c新密码不能与旧密码相同"), false);
             return 0;
         }
 
         // 执行修改
-        player.sendMessage(new LiteralText("§7正在修改密码..."));
+        player.sendMessage(new LiteralText("§7正在修改密码..."), false);
         if (db.changePassword(player.getUuid(), newPassword)) {
             TextUtils.sendSuccess(player, "password.change_success");
             LOGGER.info("玩家 {} 已修改密码", player.getName().getString());
             return 1;
         } else {
-            player.sendMessage(new LiteralText("§c密码修改失败，请稍后重试"));
+            player.sendMessage(new LiteralText("§c密码修改失败，请稍后重试"), false);
             return 0;
         }
     }
