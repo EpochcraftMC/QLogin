@@ -4,7 +4,6 @@ import top.chenray.qlogin.LoginManager;
 import top.chenray.qlogin.LoginState;
 import top.chenray.qlogin.util.TextUtils;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -15,7 +14,7 @@ import net.minecraft.text.Text;
  */
 public class LogoutCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(CommandManager.literal("logout")
             .executes(context -> {
                 ServerCommandSource source = context.getSource();

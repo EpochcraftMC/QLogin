@@ -7,7 +7,7 @@ import top.chenray.qlogin.handler.PlayerHandler;
 import top.chenray.qlogin.util.LanguageManager;
 import top.chenray.qlogin.util.TitleHelper;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
@@ -54,12 +54,12 @@ public class LoginMod implements ModInitializer {
         });
 
         // 注册命令
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            RegisterCommand.register(dispatcher, registryAccess, environment);
-            LoginCommand.register(dispatcher, registryAccess, environment);
-            LogoutCommand.register(dispatcher, registryAccess, environment);
-            ChangePasswordCommand.register(dispatcher, registryAccess, environment);
-            AdminCommand.register(dispatcher, registryAccess, environment);
+        CommandRegistrationCallback.EVENT.register((dispatcher, environment) -> {
+            RegisterCommand.register(dispatcher, environment);
+            LoginCommand.register(dispatcher, environment);
+            LogoutCommand.register(dispatcher, environment);
+            ChangePasswordCommand.register(dispatcher, environment);
+            AdminCommand.register(dispatcher, environment);
             LOGGER.info("登录系统命令已注册");
         });
 

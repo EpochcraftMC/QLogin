@@ -4,7 +4,6 @@ import top.chenray.qlogin.LoginManager;
 import top.chenray.qlogin.LoginState;
 import top.chenray.qlogin.util.TextUtils;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
