@@ -34,7 +34,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build
-        run: ./gradlew : --no-daemon
+        run: ./gradlew :v1_20_1-neoforge:build --no-daemon
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
