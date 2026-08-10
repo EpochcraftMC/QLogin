@@ -3,7 +3,7 @@
   "id": "qlogin",
   "version": "${version}",
   "name": "QLogin",
-  "description": "§bQLogin 玩家登录认证系统§r - 支持注册、登录、密码管理、IP封禁\\n适配 Minecraft 1.21.1",
+  "description": "QLogin player login authentication system - Minecraft 1.21.10",
   "authors": ["aqing"],
   "license": "MIT",
   "icon": "assets/qlogin/icon.png",
@@ -17,8 +17,8 @@
     "qlogin.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.15.10",
-    "minecraft": "~1.21",
+    "fabricloader": ">=0.16.10",
+    "minecraft": "~1.21.10",
     "java": ">=21",
     "fabric-api": "*"
   }
