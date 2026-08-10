@@ -1,8 +1,8 @@
 # ============================================================
-# QLogin v1_21_1-fabric standalone build
+# QLogin v1_20_6-fabric standalone build
 # Branch: v1.21.1-fabric | Java: 21
 # ============================================================
-name: Build v1_21_1-fabric
+name: Build v1_20_6-fabric
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: "Build v1_21_1-fabric"
+    name: "Build v1_20_6-fabric"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,11 +34,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build
-        run: ./gradlew :v1_21_1-fabric:build --no-daemon
+        run: ./gradlew :v1_20_6-fabric:build --no-daemon
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: v1_21_1-fabric
-          path: v1_21_1-fabric/build/libs/*.jar
+          name: v1_20_6-fabric
+          path: v1_20_6-fabric/build/libs/*.jar
           if-no-files-found: warn
