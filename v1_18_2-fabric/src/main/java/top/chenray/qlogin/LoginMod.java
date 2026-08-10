@@ -46,7 +46,7 @@ public class LoginMod implements ModInitializer {
         // 服务器启动时初始化
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             SERVER = server;
-            Path configDir = server.getRunDirectory().resolve("config").resolve("loginmod");
+            Path configDir = server.getRunDirectory().toPath().resolve("config").resolve("loginmod");
             ModConfig.load(configDir);
             LanguageManager.init();
             DatabaseManager.init(configDir);
@@ -87,14 +87,14 @@ public class LoginMod implements ModInitializer {
         public void sendTitle(ServerPlayerEntity player, String title, String subtitle) {
             try {
                 var handler = player.networkHandler;
-                Class<?> animPkt = Class.forName("net.minecraft.network.packet.s2c.play.SetTitleAnimationS2CPacket");
-                Class<?> subtitlePkt = Class.forName("net.minecraft.network.packet.s2c.play.SetSubtitleS2CPacket");
-                Class<?> titlePkt = Class.forName("net.minecraft.network.packet.s2c.play.SetTitleS2CPacket");
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) animPkt.getConstructor(int.class, int.class, int.class)
+                Class<?> animPkt = Class.forName("net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket");
+                Class<?> subtitlePkt = Class.forName("net.minecraft.network.packet.s2c.play.SubtitleS2CPacket");
+                Class<?> titlePkt = Class.forName("net.minecraft.network.packet.s2c.play.TitleS2CPacket");
+                handler.sendPacket((net.minecraft.network.Packet<?>) animPkt.getConstructor(int.class, int.class, int.class)
                     .newInstance(10, 60, 20));
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) subtitlePkt.getConstructor(Text.class)
+                handler.sendPacket((net.minecraft.network.Packet<?>) subtitlePkt.getConstructor(Text.class)
                     .newInstance(new LiteralText("§e" + subtitle)));
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) titlePkt.getConstructor(Text.class)
+                handler.sendPacket((net.minecraft.network.Packet<?>) titlePkt.getConstructor(Text.class)
                     .newInstance(new LiteralText("§6" + title)));
             } catch (Exception e) {
                 player.sendMessage(new LiteralText("§6" + title + " §e" + subtitle), true);
