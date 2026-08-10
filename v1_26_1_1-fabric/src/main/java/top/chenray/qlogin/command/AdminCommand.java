@@ -24,36 +24,34 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 管理员命令 - /loginmod
- * 子命令: reload, unregister, resetpassword, info
- * 全部带 Tab 补全支持
+ * 绠＄悊鍛樺懡浠?- /loginmod
+ * 瀛愬懡浠? reload, unregister, resetpassword, info
+ * 鍏ㄩ儴甯?Tab 琛ュ叏鏀寔
  */
 public class AdminCommand {
 
-    /** Tab 补全: 所有已注册玩家名（支持离线的玩家） */
+    /** Tab 琛ュ叏: 鎵€鏈夊凡娉ㄥ唽鐜╁鍚嶏紙鏀寔绂荤嚎鐨勭帺瀹讹級 */
     private static final SuggestionProvider<CommandSourceStack> REGISTERED_PLAYERS =
         (context, builder) -> suggestRegisteredPlayers(builder);
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
         var loginmod = Commands.literal("loginmod")
             .requires(source -> source.permissions() instanceof net.minecraft.server.permissions.LevelBasedPermissionSet s
-                && s.level().isEqualOrHigherThan(net.minecraft.server.permissions.PermissionLevel.OWNERS)); // OP 权限等级 4
+                && s.level().isEqualOrHigherThan(net.minecraft.server.permissions.PermissionLevel.OWNERS)); // OP 鏉冮檺绛夌骇 4
 
-        // /loginmod reload - 重载配置
+        // /loginmod reload - 閲嶈浇閰嶇疆
         loginmod.then(Commands.literal("reload")
             .executes(AdminCommand::executeReload)
         );
 
-        // /loginmod unregister <玩家名> - 强制注销（支持 Tab 补全）
-        loginmod.then(Commands.literal("unregister")
+        // /loginmod unregister <鐜╁鍚? - 寮哄埗娉ㄩ攢锛堟敮鎸?Tab 琛ュ叏锛?        loginmod.then(Commands.literal("unregister")
             .then(Commands.argument("player", StringArgumentType.string())
                 .suggests(REGISTERED_PLAYERS)
                 .executes(AdminCommand::executeUnregister)
             )
         );
 
-        // /loginmod resetpassword <玩家名> <新密码> - 重置密码（支持 Tab 补全）
-        loginmod.then(Commands.literal("resetpassword")
+        // /loginmod resetpassword <鐜╁鍚? <鏂板瘑鐮? - 閲嶇疆瀵嗙爜锛堟敮鎸?Tab 琛ュ叏锛?        loginmod.then(Commands.literal("resetpassword")
             .then(Commands.argument("player", StringArgumentType.string())
                 .suggests(REGISTERED_PLAYERS)
                 .then(Commands.argument("newPassword", StringArgumentType.word())
@@ -62,8 +60,7 @@ public class AdminCommand {
             )
         );
 
-        // /loginmod info <玩家名> - 查看玩家信息（支持 Tab 补全）
-        loginmod.then(Commands.literal("info")
+        // /loginmod info <鐜╁鍚? - 鏌ョ湅鐜╁淇℃伅锛堟敮鎸?Tab 琛ュ叏锛?        loginmod.then(Commands.literal("info")
             .then(Commands.argument("player", StringArgumentType.string())
                 .suggests(REGISTERED_PLAYERS)
                 .executes(AdminCommand::executeInfo)
@@ -73,14 +70,13 @@ public class AdminCommand {
         dispatcher.register(loginmod);
     }
 
-    // ==================== Tab 补全 ====================
+    // ==================== Tab 琛ュ叏 ====================
 
     /**
-     * 从数据库和在线玩家中获取所有已知玩家名，用于 Tab 补全
+     * 浠庢暟鎹簱鍜屽湪绾跨帺瀹朵腑鑾峰彇鎵€鏈夊凡鐭ョ帺瀹跺悕锛岀敤浜?Tab 琛ュ叏
      */
     private static CompletableFuture<Suggestions> suggestRegisteredPlayers(SuggestionsBuilder builder) {
-        // 1. 添加在线玩家名
-        try {
+        // 1. 娣诲姞鍦ㄧ嚎鐜╁鍚?        try {
             var server = top.chenray.qlogin.LoginMod.getServer();
             if (server != null) {
                 for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -92,8 +88,7 @@ public class AdminCommand {
             }
         } catch (Exception ignored) {}
 
-        // 2. 从数据库添加所有已注册玩家名
-        try {
+        // 2. 浠庢暟鎹簱娣诲姞鎵€鏈夊凡娉ㄥ唽鐜╁鍚?        try {
             var conn = DatabaseManager.getInstance().getConnection();
             if (conn != null) {
                 String sql = "SELECT DISTINCT username FROM players WHERE username LIKE ?";
@@ -111,8 +106,7 @@ public class AdminCommand {
     }
 
     /**
-     * 通过用户名查找在线玩家或数据库记录
-     */
+     * 閫氳繃鐢ㄦ埛鍚嶆煡鎵惧湪绾跨帺瀹舵垨鏁版嵁搴撹褰?     */
     private static ServerPlayer findPlayerByUsername(String username) {
         var server = top.chenray.qlogin.LoginMod.getServer();
         if (server != null) {
@@ -125,10 +119,10 @@ public class AdminCommand {
         return null;
     }
 
-    // ==================== 命令执行 ====================
+    // ==================== 鍛戒护鎵ц ====================
 
     /**
-     * /loginmod reload - 重载配置
+     * /loginmod reload - 閲嶈浇閰嶇疆
      */
     private static int executeReload(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
@@ -144,7 +138,7 @@ public class AdminCommand {
     }
 
     /**
-     * /loginmod unregister <玩家> - 强制注销（支持离线玩家）
+     * /loginmod unregister <鐜╁> - 寮哄埗娉ㄩ攢锛堟敮鎸佺绾跨帺瀹讹級
      */
     private static int executeUnregister(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
@@ -155,29 +149,29 @@ public class AdminCommand {
         boolean success;
 
         if (target != null) {
-            // 在线玩家 - 用 UUID 删除
+            // 鍦ㄧ嚎鐜╁ - 鐢?UUID 鍒犻櫎
             success = db.unregisterPlayerByUuid(target.getUUID());
             if (success) {
                 LoginManager.getInstance().setUnregistered(target.getUUID());
-                target.connection.disconnect(Component.literal("§e你的账号已被管理员强制注销，请重新注册"));
+                target.connection.disconnect(Component.literal("搂e浣犵殑璐﹀彿宸茶绠＄悊鍛樺己鍒舵敞閿€锛岃閲嶆柊娉ㄥ唽"));
             }
         } else {
-            // 离线玩家 - 用用户名删除
+            // 绂荤嚎鐜╁ - 鐢ㄧ敤鎴峰悕鍒犻櫎
             success = db.unregisterPlayer(targetName);
         }
 
         if (success) {
-            source.sendSystemMessage(TextUtils.success("已强制注销玩家 §e" + targetName));
-            LOGGER.info("管理员 {} 强制注销了玩家 {}", source.getTextName(), targetName);
+            source.sendSystemMessage(TextUtils.success("宸插己鍒舵敞閿€鐜╁ 搂e" + targetName));
+            LOGGER.info("绠＄悊鍛?{} 寮哄埗娉ㄩ攢浜嗙帺瀹?{}", source.getTextName(), targetName);
             return 1;
         } else {
-            source.sendSystemMessage(TextUtils.error("未找到玩家 §e" + targetName + "§c 的注册信息"));
+            source.sendSystemMessage(TextUtils.error("鏈壘鍒扮帺瀹?搂e" + targetName + "搂c 鐨勬敞鍐屼俊鎭?));
             return 0;
         }
     }
 
     /**
-     * /loginmod resetpassword <玩家> <新密码> - 重置密码（支持离线玩家）
+     * /loginmod resetpassword <鐜╁> <鏂板瘑鐮? - 閲嶇疆瀵嗙爜锛堟敮鎸佺绾跨帺瀹讹級
      */
     private static int executeResetPassword(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
@@ -185,21 +179,21 @@ public class AdminCommand {
         String newPassword = StringArgumentType.getString(context, "newPassword");
         ServerPlayer target = findPlayerByUsername(targetName);
 
-        // 验证密码长度
+        // 楠岃瘉瀵嗙爜闀垮害
         ModConfig config = ModConfig.getInstance();
         if (newPassword.length() < config.getPasswordMinLength() || newPassword.length() > config.getPasswordMaxLength()) {
-            source.sendSystemMessage(TextUtils.error("密码长度必须在 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 个字符之间"));
+            source.sendSystemMessage(TextUtils.error("瀵嗙爜闀垮害蹇呴』鍦?" + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 涓瓧绗︿箣闂?));
             return 0;
         }
 
         DatabaseManager db = DatabaseManager.getInstance();
         String uuid = null;
 
-        // 查找玩家 UUID
+        // 鏌ユ壘鐜╁ UUID
         if (target != null) {
             uuid = target.getUUID().toString();
         } else {
-            // 从数据库查找 UUID
+            // 浠庢暟鎹簱鏌ユ壘 UUID
             Map<String, Object> info = db.getPlayerInfo(targetName);
             if (info != null) {
                 uuid = (String) info.get("uuid");
@@ -207,28 +201,28 @@ public class AdminCommand {
         }
 
         if (uuid == null) {
-            source.sendSystemMessage(TextUtils.error("玩家 §e" + targetName + "§c 尚未注册"));
+            source.sendSystemMessage(TextUtils.error("鐜╁ 搂e" + targetName + "搂c 灏氭湭娉ㄥ唽"));
             return 0;
         }
 
         if (db.changePassword(java.util.UUID.fromString(uuid), newPassword)) {
-            source.sendSystemMessage(TextUtils.success("已重置玩家 §e" + targetName + "§a 的密码"));
+            source.sendSystemMessage(TextUtils.success("宸查噸缃帺瀹?搂e" + targetName + "搂a 鐨勫瘑鐮?));
 
             if (target != null) {
-                target.sendSystemMessage(TextUtils.warning("管理员 §e" + source.getTextName() + "§e 已重置你的密码"));
-                target.sendSystemMessage(TextUtils.info("新密码: §e" + newPassword + "§b，请尽快修改"));
+                target.sendSystemMessage(TextUtils.warning("绠＄悊鍛?搂e" + source.getTextName() + "搂e 宸查噸缃綘鐨勫瘑鐮?));
+                target.sendSystemMessage(TextUtils.info("鏂板瘑鐮? 搂e" + newPassword + "搂b锛岃灏藉揩淇敼"));
             }
 
-            LOGGER.info("管理员 {} 重置了玩家 {} 的密码", source.getTextName(), targetName);
+            LOGGER.info("绠＄悊鍛?{} 閲嶇疆浜嗙帺瀹?{} 鐨勫瘑鐮?, source.getTextName(), targetName);
             return 1;
         } else {
-            source.sendSystemMessage(TextUtils.error("密码重置失败"));
+            source.sendSystemMessage(TextUtils.error("瀵嗙爜閲嶇疆澶辫触"));
             return 0;
         }
     }
 
     /**
-     * /loginmod info <玩家> - 查看信息（支持离线玩家）
+     * /loginmod info <鐜╁> - 鏌ョ湅淇℃伅锛堟敮鎸佺绾跨帺瀹讹級
      */
     private static int executeInfo(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
@@ -236,23 +230,23 @@ public class AdminCommand {
 
         Map<String, Object> info = DatabaseManager.getInstance().getPlayerInfo(targetName);
         if (info == null) {
-            source.sendSystemMessage(TextUtils.error("玩家 §e" + targetName + "§c 尚未注册"));
+            source.sendSystemMessage(TextUtils.error("鐜╁ 搂e" + targetName + "搂c 灏氭湭娉ㄥ唽"));
             return 0;
         }
 
-        source.sendSystemMessage(Component.literal("§7用户名: §e" + info.get("username")));
-        source.sendSystemMessage(Component.literal("§7UUID: §f" + info.get("uuid")));
-        source.sendSystemMessage(Component.literal("§7注册时间: §b" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        source.sendSystemMessage(Component.literal("搂7鐢ㄦ埛鍚? 搂e" + info.get("username")));
+        source.sendSystemMessage(Component.literal("搂7UUID: 搂f" + info.get("uuid")));
+        source.sendSystemMessage(Component.literal("搂7娉ㄥ唽鏃堕棿: 搂b" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             .format(new java.util.Date((Long) info.get("register_time")))));
-        source.sendSystemMessage(Component.literal("§7最后登录: §b" + (info.get("last_login") != null ?
-            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date((Long) info.get("last_login"))) : "无")));
-        source.sendSystemMessage(Component.literal("§7登录失败: §c" + info.get("login_fail_count")));
+        source.sendSystemMessage(Component.literal("搂7鏈€鍚庣櫥褰? 搂b" + (info.get("last_login") != null ?
+            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date((Long) info.get("last_login"))) : "鏃?)));
+        source.sendSystemMessage(Component.literal("搂7鐧诲綍澶辫触: 搂c" + info.get("login_fail_count")));
 
         @SuppressWarnings("unchecked")
         var ipHistory = (java.util.List<String>) new com.google.gson.Gson().fromJson(
             (String) info.get("ip_history"), java.util.List.class);
         if (ipHistory != null && !ipHistory.isEmpty()) {
-            source.sendSystemMessage(Component.literal("§7IP历史: §f" + String.join("§7, §f", ipHistory)));
+            source.sendSystemMessage(Component.literal("搂7IP鍘嗗彶: 搂f" + String.join("搂7, 搂f", ipHistory)));
         }
 
         return 1;

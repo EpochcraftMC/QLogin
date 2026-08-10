@@ -6,8 +6,8 @@ import java.security.SecureRandom;
 import java.util.HexFormat;
 
 /**
- * 密码加密工具 - 使用 SHA-256 + Salt
- * 格式: salt$hash (均为十六进制字符串)
+ * 瀵嗙爜鍔犲瘑宸ュ叿 - 浣跨敤 SHA-256 + Salt
+ * 鏍煎紡: salt$hash (鍧囦负鍗佸叚杩涘埗瀛楃涓?
  */
 public class PasswordHasher {
 
@@ -16,7 +16,7 @@ public class PasswordHasher {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
-     * 生成随机盐值（十六进制字符串）
+     * 鐢熸垚闅忔満鐩愬€硷紙鍗佸叚杩涘埗瀛楃涓诧級
      */
     public static String generateSalt() {
         byte[] salt = new byte[SALT_LENGTH];
@@ -25,11 +25,8 @@ public class PasswordHasher {
     }
 
     /**
-     * 使用 SHA-256 对密码加盐哈希
-     * @param password 明文密码
-     * @param salt     盐值（十六进制）
-     * @return 哈希后的十六进制字符串
-     */
+     * 浣跨敤 SHA-256 瀵瑰瘑鐮佸姞鐩愬搱甯?     * @param password 鏄庢枃瀵嗙爜
+     * @param salt     鐩愬€硷紙鍗佸叚杩涘埗锛?     * @return 鍝堝笇鍚庣殑鍗佸叚杩涘埗瀛楃涓?     */
     public static String hashPassword(String password, String salt) {
         try {
             MessageDigest md = MessageDigest.getInstance(ALGORITHM);
@@ -42,7 +39,7 @@ public class PasswordHasher {
     }
 
     /**
-     * 生成完整的密码哈希存储值 (salt$hash)
+     * 鐢熸垚瀹屾暣鐨勫瘑鐮佸搱甯屽瓨鍌ㄥ€?(salt$hash)
      */
     public static String createPasswordHash(String password) {
         String salt = generateSalt();
@@ -51,10 +48,9 @@ public class PasswordHasher {
     }
 
     /**
-     * 验证密码
-     * @param password        明文密码
-     * @param storedHashValue 数据库中存储的 salt$hash 值
-     * @return 密码是否正确
+     * 楠岃瘉瀵嗙爜
+     * @param password        鏄庢枃瀵嗙爜
+     * @param storedHashValue 鏁版嵁搴撲腑瀛樺偍鐨?salt$hash 鍊?     * @return 瀵嗙爜鏄惁姝ｇ‘
      */
     public static boolean verifyPassword(String password, String storedHashValue) {
         if (storedHashValue == null || !storedHashValue.contains("$")) {

@@ -3,7 +3,7 @@
   "id": "qlogin",
   "version": "${version}",
   "name": "QLogin",
-  "description": "QLogin player login authentication system - Minecraft 26.1.1",
+  "description": "QLogin player login authentication system - Minecraft 26.1",
   "authors": ["aqing"],
   "license": "MIT",
   "icon": "assets/qlogin/icon.png",
@@ -18,7 +18,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.19.3",
-    "minecraft": "~26.1.1",
+    "minecraft": "~26.1",
     "java": ">=25",
     "fabric-api": "*"
   }

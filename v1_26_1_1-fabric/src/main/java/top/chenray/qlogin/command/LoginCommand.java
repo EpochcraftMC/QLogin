@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
 /**
- * /login <密码> 和 /l <密码> - 登录命令
+ * /login <瀵嗙爜> 鍜?/l <瀵嗙爜> - 鐧诲綍鍛戒护
  */
 public class LoginCommand {
 
@@ -25,7 +25,7 @@ public class LoginCommand {
                     CommandSourceStack source = context.getSource();
                     ServerPlayer player = source.getPlayer();
                     if (player == null) {
-                        source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
+                        source.sendFailure(Component.literal("搂c姝ゅ懡浠ゅ彧鑳界敱鐜╁鎵ц"));
                         return 0;
                     }
                     String password = StringArgumentType.getString(context, "password");
@@ -34,14 +34,14 @@ public class LoginCommand {
             )
         );
 
-        // /l <password> (别名)
+        // /l <password> (鍒悕)
         dispatcher.register(Commands.literal("l")
             .then(Commands.argument("password", StringArgumentType.word())
                 .executes(context -> {
                     CommandSourceStack source = context.getSource();
                     ServerPlayer player = source.getPlayer();
                     if (player == null) {
-                        source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
+                        source.sendFailure(Component.literal("搂c姝ゅ懡浠ゅ彧鑳界敱鐜╁鎵ц"));
                         return 0;
                     }
                     String password = StringArgumentType.getString(context, "password");
@@ -74,7 +74,7 @@ public class LoginCommand {
             db.updateLoginInfo(player.getUUID(), ip);
 
             TextUtils.sendSuccess(player, "login.success", player.getName().getString());
-            TextUtils.sendTitle(player, "登录成功", "欢迎回来！");
+            TextUtils.sendTitle(player, "鐧诲綍鎴愬姛", "娆㈣繋鍥炴潵锛?);
 
             LOGGER.info("Player {} logged in", player.getName().getString());
             return 1;

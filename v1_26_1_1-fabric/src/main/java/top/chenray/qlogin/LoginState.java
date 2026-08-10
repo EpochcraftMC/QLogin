@@ -1,13 +1,12 @@
 package top.chenray.qlogin;
 
 /**
- * 玩家登录状态枚举
- */
+ * 鐜╁鐧诲綍鐘舵€佹灇涓? */
 public enum LoginState {
-    /** 未注册 */
+    /** 鏈敞鍐?*/
     UNREGISTERED,
-    /** 已注册但未登录 */
+    /** 宸叉敞鍐屼絾鏈櫥褰?*/
     NOT_LOGGED_IN,
-    /** 已登录 */
+    /** 宸茬櫥褰?*/
     LOGGED_IN
 }
