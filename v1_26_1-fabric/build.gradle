@@ -1,5 +1,6 @@
 plugins {
-    id 'fabric-loom' version '1.17.12'
+    // MC 26.1 为不混淆版本，需使用 net.fabricmc.fabric-loom 插件（unobfuscated）
+    id 'net.fabricmc.fabric-loom' version '1.17.12'
 }
 
 base {
@@ -29,14 +30,10 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${rootProject.mc_26_1}"
-    // MC 26.1 为不混淆版本，使用 unobfuscated loom（不设置 mappings）
+    // MC 26.1 为不混淆版本，无需 mappings
     modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_26_1}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_26_1}"
     include "org.xerial:sqlite-jdbc:${rootProject.sqlite_jdbc_version}"
-}
-
-loom {
-    mixin.defaultRefmapName = "QLogin-26.1-refmap.json"
 }
 
 processResources {
