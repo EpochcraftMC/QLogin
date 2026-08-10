@@ -55,12 +55,12 @@ public class LoginMod implements ModInitializer {
         });
 
         // 注册命令
-        CommandRegistrationCallback.EVENT.register((dispatcher) -> {
-            RegisterCommand.register(dispatcher);
-            LoginCommand.register(dispatcher);
-            LogoutCommand.register(dispatcher);
-            ChangePasswordCommand.register(dispatcher);
-            AdminCommand.register(dispatcher);
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            RegisterCommand.register(dispatcher, dedicated);
+            LoginCommand.register(dispatcher, dedicated);
+            LogoutCommand.register(dispatcher, dedicated);
+            ChangePasswordCommand.register(dispatcher, dedicated);
+            AdminCommand.register(dispatcher, dedicated);
             LOGGER.info("登录系统命令已注册");
         });
 

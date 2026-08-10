@@ -18,7 +18,7 @@ import net.minecraft.text.Text;
  */
 public class ChangePasswordCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         dispatcher.register(CommandManager.literal("changepassword")
             .then(CommandManager.argument("oldPassword", StringArgumentType.word())
                 .then(CommandManager.argument("newPassword", StringArgumentType.word())

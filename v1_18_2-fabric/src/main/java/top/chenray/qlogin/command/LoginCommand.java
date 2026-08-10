@@ -17,7 +17,7 @@ import net.minecraft.text.Text;
  */
 public class LoginCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         // /login <password>
         dispatcher.register(CommandManager.literal("login")
             .then(CommandManager.argument("password", StringArgumentType.word())
