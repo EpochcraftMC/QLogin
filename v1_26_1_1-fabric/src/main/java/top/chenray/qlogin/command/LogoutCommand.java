@@ -34,13 +34,13 @@ public class LogoutCommand {
         LoginState state = loginManager.getState(player.getUUID());
 
         if (state != LoginState.LOGGED_IN) {
-            player.displayClientMessage(Component.literal("§c你还没有登录"), false);
+            player.sendSystemMessage(Component.literal("§c你还没有登录"));
             return 0;
         }
 
         loginManager.setLoggedOut(player.getUUID());
         TextUtils.sendWarning(player, "logout.success");
-        player.displayClientMessage(Component.literal("§b使用 §6/login <密码> §b重新登录"), false);
+        player.sendSystemMessage(Component.literal("§b使用 §6/login <密码> §b重新登录"));
         LOGGER.info("玩家 {} 已登出", player.getName().getString());
         return 1;
     }

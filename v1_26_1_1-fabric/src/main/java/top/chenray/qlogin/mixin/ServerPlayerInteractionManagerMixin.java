@@ -9,7 +9,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -21,14 +20,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerInteractionManagerMixin {
 
-    @Shadow
-    public ServerPlayer player;
 
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
     private void onInteractBlock(ServerPlayer player, Level world, ItemStack stack, InteractionHand hand,
                                   BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
         if (!LoginManager.getInstance().isLoggedIn(player.getUUID())) {
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§c⚠ 请先登录后再与方块交互！"), true);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§c⚠ 请先登录后再与方块交互！"), true);
             cir.setReturnValue(InteractionResult.FAIL);
         }
     }

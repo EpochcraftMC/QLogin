@@ -28,42 +28,42 @@ public class TextUtils {
      * 发送系统消息给玩家
      */
     public static void sendMessage(ServerPlayer player, Component message) {
-        player.displayClientMessage(message, false);
+        player.sendSystemMessage(message);
     }
 
     /**
      * 发送翻译消息（带前缀）
      */
     public static void sendMsg(ServerPlayer player, String key, Object... args) {
-        player.displayClientMessage(prefixed(Component.literal(LanguageManager.tr(key, args))), false);
+        player.sendSystemMessage(prefixed(Component.literal(LanguageManager.tr(key, args))));
     }
 
     /**
      * 发送错误消息
      */
     public static void sendError(ServerPlayer player, String key, Object... args) {
-        player.displayClientMessage(prefixed(Component.literal(LanguageManager.tr(key, args))), false);
+        player.sendSystemMessage(prefixed(Component.literal(LanguageManager.tr(key, args))));
     }
 
     /**
      * 发送成功消息
      */
     public static void sendSuccess(ServerPlayer player, String key, Object... args) {
-        player.displayClientMessage(prefixed(Component.literal(LanguageManager.tr(key, args))), false);
+        player.sendSystemMessage(prefixed(Component.literal(LanguageManager.tr(key, args))));
     }
 
     /**
      * 发送警告消息
      */
     public static void sendWarning(ServerPlayer player, String key, Object... args) {
-        player.displayClientMessage(prefixed(Component.literal(LanguageManager.tr(key, args))), false);
+        player.sendSystemMessage(prefixed(Component.literal(LanguageManager.tr(key, args))));
     }
 
     /**
      * 发送 ActionBar 消息
      */
     public static void sendActionBar(ServerPlayer player, String key, Object... args) {
-        player.displayClientMessage(Component.literal(LanguageManager.tr(key, args)), true);
+        player.sendSystemMessage(Component.literal(LanguageManager.tr(key, args)), true);
     }
 
     /**
