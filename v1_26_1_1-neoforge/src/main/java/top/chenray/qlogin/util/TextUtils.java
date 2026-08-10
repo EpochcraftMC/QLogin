@@ -71,15 +71,14 @@ public class TextUtils {
      * 发送 ActionBar 消息给玩家
      */
     public static void sendActionBar(ServerPlayer player, String key, Object... args) {
-        player.displayClientMessage(Component.literal(LanguageManager.tr(key, args)), true);
+        player.sendSystemMessage(Component.literal(LanguageManager.tr(key, args)), true);
     }
 
     /**
      * 发送标题消息（大标题 + 子标题）
-     * NeoForge 1.21.1 直接使用 displayClientMessage 作为简化实现
      */
     public static void sendTitle(ServerPlayer player, String title, String subtitle) {
-        player.displayClientMessage(Component.literal("§6" + title + " §e" + subtitle), false);
+        player.sendSystemMessage(Component.literal("§6" + title + " §e" + subtitle), false);
     }
 
     // ==================== 静态 Component 工厂方法 ====================
