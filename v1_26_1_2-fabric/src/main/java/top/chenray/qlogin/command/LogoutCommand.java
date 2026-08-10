@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
 /**
- * /logout - 登出命令
+ * /logout - 鐧诲嚭鍛戒护
  */
 public class LogoutCommand {
 
@@ -21,7 +21,7 @@ public class LogoutCommand {
                 CommandSourceStack source = context.getSource();
                 ServerPlayer player = source.getPlayer();
                 if (player == null) {
-                    source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
+                    source.sendFailure(Component.literal("搂c姝ゅ懡浠ゅ彧鑳界敱鐜╁鎵ц"));
                     return 0;
                 }
                 return executeLogout(player);
@@ -34,14 +34,14 @@ public class LogoutCommand {
         LoginState state = loginManager.getState(player.getUUID());
 
         if (state != LoginState.LOGGED_IN) {
-            player.sendSystemMessage(Component.literal("§c你还没有登录"));
+            player.sendSystemMessage(Component.literal("搂c浣犺繕娌℃湁鐧诲綍"));
             return 0;
         }
 
         loginManager.setLoggedOut(player.getUUID());
         TextUtils.sendWarning(player, "logout.success");
-        player.sendSystemMessage(Component.literal("§b使用 §6/login <密码> §b重新登录"));
-        LOGGER.info("玩家 {} 已登出", player.getName().getString());
+        player.sendSystemMessage(Component.literal("搂b浣跨敤 搂6/login <瀵嗙爜> 搂b閲嶆柊鐧诲綍"));
+        LOGGER.info("鐜╁ {} 宸茬櫥鍑?, player.getName().getString());
         return 1;
     }
 

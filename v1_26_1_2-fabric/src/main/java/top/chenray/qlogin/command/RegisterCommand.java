@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
 /**
- * /register <密码> <确认密码> - 注册命令
+ * /register <瀵嗙爜> <纭瀵嗙爜> - 娉ㄥ唽鍛戒护
  */
 public class RegisterCommand {
 
@@ -26,7 +26,7 @@ public class RegisterCommand {
                         CommandSourceStack source = context.getSource();
                         ServerPlayer player = source.getPlayer();
                         if (player == null) {
-                            source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
+                            source.sendFailure(Component.literal("搂c姝ゅ懡浠ゅ彧鑳界敱鐜╁鎵ц"));
                             return 0;
                         }
 
@@ -45,39 +45,38 @@ public class RegisterCommand {
         LoginState state = loginManager.getState(player.getUUID());
         DatabaseManager db = DatabaseManager.getInstance();
 
-        // 检查是否已登录
+        // 妫€鏌ユ槸鍚﹀凡鐧诲綍
         if (state == LoginState.LOGGED_IN) {
             TextUtils.sendMsg(player, "login.already");
             return 0;
         }
 
-        // 检查是否已注册
+        // 妫€鏌ユ槸鍚﹀凡娉ㄥ唽
         if (db.isPlayerRegistered(player.getUUID())) {
             TextUtils.sendMsg(player, "register.exists");
             return 0;
         }
 
-        // 验证密码长度
+        // 楠岃瘉瀵嗙爜闀垮害
         ModConfig config = ModConfig.getInstance();
         if (password.length() < config.getPasswordMinLength() || password.length() > config.getPasswordMaxLength()) {
             TextUtils.sendMsg(player, "register.password_length", config.getPasswordMinLength(), config.getPasswordMaxLength());
             return 0;
         }
 
-        // 验证两次密码一致
-        if (!password.equals(confirmPassword)) {
+        // 楠岃瘉涓ゆ瀵嗙爜涓€鑷?        if (!password.equals(confirmPassword)) {
             TextUtils.sendMsg(player, "register.password_mismatch");
             return 0;
         }
 
-        // 执行注册
+        // 鎵ц娉ㄥ唽
         String ip = loginManager.getPlayerIp(player);
 
         if (db.registerPlayer(player.getUUID(), player.getName().getString(), password, ip)) {
             loginManager.setLoggedIn(player.getUUID());
             loginManager.resetLoginFails(player.getUUID());
             TextUtils.sendMsg(player, "register.success", player.getName().getString());
-            TextUtils.sendTitle(player, "注册成功", "欢迎加入服务器！");
+            TextUtils.sendTitle(player, "娉ㄥ唽鎴愬姛", "娆㈣繋鍔犲叆鏈嶅姟鍣紒");
             LOGGER.info("Player {} registered", player.getName().getString());
             return 1;
         } else {

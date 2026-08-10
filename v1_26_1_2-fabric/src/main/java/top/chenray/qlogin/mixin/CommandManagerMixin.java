@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Mixin - 鎷︽埅鍛戒护鎵ц (26.x)
+ * Mixin - 鎷︽埅鍛戒护鎵ц (1.21)
+ * 涓?1.20.x 鍏煎 - Commands API 鏈彉
  */
 @Mixin(Commands.class)
 public class CommandManagerMixin {

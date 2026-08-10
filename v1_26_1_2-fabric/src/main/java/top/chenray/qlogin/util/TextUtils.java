@@ -6,100 +6,94 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 
 /**
- * 文本工具类 - 提供多语言彩色格式化输出
- */
+ * 鏂囨湰宸ュ叿绫?- 鎻愪緵澶氳瑷€褰╄壊鏍煎紡鍖栬緭鍑? */
 public class TextUtils {
 
     /**
-     * 翻译快捷方法
+     * 缈昏瘧蹇嵎鏂规硶
      */
     public static String t(String key, Object... args) {
         return LanguageManager.tr(key, args);
     }
 
     /**
-     * 获取带前缀的消息文本
-     */
+     * 鑾峰彇甯﹀墠缂€鐨勬秷鎭枃鏈?     */
     public static MutableComponent prefixed(Component text) {
         return Component.literal(LanguageManager.tr("prefix")).append(text);
     }
 
     /**
-     * 发送系统消息给玩家
+     * 鍙戦€佺郴缁熸秷鎭粰鐜╁
      */
     public static void sendMessage(ServerPlayer player, Component message) {
         player.sendSystemMessage(message);
     }
 
     /**
-     * 发送翻译消息（带前缀）
-     */
+     * 鍙戦€佺炕璇戞秷鎭紙甯﹀墠缂€锛?     */
     public static void sendMsg(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(prefixed(Component.literal(LanguageManager.tr(key, args))));
     }
 
     /**
-     * 发送错误消息
-     */
+     * 鍙戦€侀敊璇秷鎭?     */
     public static void sendError(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(prefixed(Component.literal(LanguageManager.tr(key, args))));
     }
 
     /**
-     * 发送成功消息
-     */
+     * 鍙戦€佹垚鍔熸秷鎭?     */
     public static void sendSuccess(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(prefixed(Component.literal(LanguageManager.tr(key, args))));
     }
 
     /**
-     * 发送警告消息
-     */
+     * 鍙戦€佽鍛婃秷鎭?     */
     public static void sendWarning(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(prefixed(Component.literal(LanguageManager.tr(key, args))));
     }
 
     /**
-     * 发送 ActionBar 消息
+     * 鍙戦€?ActionBar 娑堟伅
      */
     public static void sendActionBar(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(Component.literal(LanguageManager.tr(key, args)), true);
     }
 
     /**
-     * 发送标题消息（大标题 + 子标题）
+     * 鍙戦€佹爣棰樻秷鎭紙澶ф爣棰?+ 瀛愭爣棰橈級
      */
     public static void sendTitle(ServerPlayer player, String title, String subtitle) {
         TitleHelper.getInstance().sendTitle(player, title, subtitle);
     }
 
-    // ==================== 静态 Component 工厂方法（用于向 CommandSourceStack 发送消息） ====================
+    // ==================== 闈欐€?Component 宸ュ巶鏂规硶锛堢敤浜庡悜 CommandSourceStack 鍙戦€佹秷鎭級 ====================
 
     /**
-     * 创建绿色成功文本
+     * 鍒涘缓缁胯壊鎴愬姛鏂囨湰
      */
     public static MutableComponent success(String text) {
-        return Component.literal("§a" + text);
+        return Component.literal("搂a" + text);
     }
 
     /**
-     * 创建红色错误文本
+     * 鍒涘缓绾㈣壊閿欒鏂囨湰
      */
     public static MutableComponent error(String text) {
-        return Component.literal("§c" + text);
+        return Component.literal("搂c" + text);
     }
 
     /**
-     * 创建黄色警告文本
+     * 鍒涘缓榛勮壊璀﹀憡鏂囨湰
      */
     public static MutableComponent warning(String text) {
-        return Component.literal("§e" + text);
+        return Component.literal("搂e" + text);
     }
 
     /**
-     * 创建蓝色信息文本
+     * 鍒涘缓钃濊壊淇℃伅鏂囨湰
      */
     public static MutableComponent info(String text) {
-        return Component.literal("§b" + text);
+        return Component.literal("搂b" + text);
     }
 }
