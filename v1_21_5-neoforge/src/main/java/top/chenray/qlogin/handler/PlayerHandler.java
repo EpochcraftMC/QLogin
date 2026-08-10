@@ -187,20 +187,4 @@ public class PlayerHandler {
     /**
      * 玩家 Tick 事件 - 阻止未登录玩家移动（备用）
      */
-    @SubscribeEvent
-    public void onPlayerTick(LivingEvent.LivingTickEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            LoginManager loginManager = LoginManager.getInstance();
-            LoginState state = loginManager.getState(player.getUUID());
-
-            if (state == LoginState.LOGGED_IN) return;
-
-            double[] loginPos = loginManager.getLoginPosition(player.getUUID());
-            if (loginPos != null && loginManager.isPlayerFrozen(player.getUUID())) {
-                player.teleportTo(loginPos[0], loginPos[1], loginPos[2]);
-                player.setYRot((float) loginPos[3]);
-                player.setXRot((float) loginPos[4]);
-            }
-        }
-    }
 }
