@@ -2,9 +2,9 @@
   {
     "modid": "qlogin",
     "name": "QLogin",
-    "description": "§bQLogin 玩家登录认证系统§r - 支持注册、登录、密码管理、IP封禁\n适配 Minecraft 1.12.2 (stable_39 映射，兼容 Cleanroom)",
+    "description": "QLogin player login authentication system - Minecraft 1.11",
     "version": "${version}",
-    "mcversion": "1.12.2",
+    "mcversion": "1.11",
     "url": "",
     "authorList": ["aqing"],
     "credits": "",
