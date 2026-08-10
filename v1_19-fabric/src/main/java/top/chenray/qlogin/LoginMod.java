@@ -86,14 +86,14 @@ public class LoginMod implements ModInitializer {
         public void sendTitle(ServerPlayerEntity player, String title, String subtitle) {
             try {
                 var handler = player.networkHandler;
-                Class<?> animPkt = Class.forName("net.minecraft.network.packet.s2c.play.SetTitleAnimationS2CPacket");
-                Class<?> subtitlePkt = Class.forName("net.minecraft.network.packet.s2c.play.SetSubtitleS2CPacket");
-                Class<?> titlePkt = Class.forName("net.minecraft.network.packet.s2c.play.SetTitleS2CPacket");
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) animPkt.getConstructor(int.class, int.class, int.class)
+                Class<?> animPkt = Class.forName("net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket");
+                Class<?> subtitlePkt = Class.forName("net.minecraft.network.packet.s2c.play.SubtitleS2CPacket");
+                Class<?> titlePkt = Class.forName("net.minecraft.network.packet.s2c.play.TitleS2CPacket");
+                handler.sendPacket((net.minecraft.network.Packet<?>) animPkt.getConstructor(int.class, int.class, int.class)
                     .newInstance(10, 60, 20));
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) subtitlePkt.getConstructor(Text.class)
+                handler.sendPacket((net.minecraft.network.Packet<?>) subtitlePkt.getConstructor(Text.class)
                     .newInstance(Text.literal("§e" + subtitle)));
-                handler.sendPacket((net.minecraft.network.packet.Packet<?>) titlePkt.getConstructor(Text.class)
+                handler.sendPacket((net.minecraft.network.Packet<?>) titlePkt.getConstructor(Text.class)
                     .newInstance(Text.literal("§6" + title)));
             } catch (Exception e) {
                 player.sendMessage(Text.literal("§6" + title + " §e" + subtitle), true);
