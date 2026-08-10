@@ -10,11 +10,9 @@ import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ServerChatEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent.Phase;
 import net.neoforged.fml.LogicalSide;
 import org.slf4j.Logger;
 
@@ -63,8 +61,7 @@ public class PlayerHandler {
      * 服务器 Tick 事件 - 检查登录超时和冻结玩家位置
      */
     @SubscribeEvent
-    public void onServerTick(ServerTickEvent event) {
-        if (event.getPhase() != Phase.END) return;
+    public void onServerTick(ServerTickEvent.Post event) {
 
         LoginManager loginManager = LoginManager.getInstance();
 
