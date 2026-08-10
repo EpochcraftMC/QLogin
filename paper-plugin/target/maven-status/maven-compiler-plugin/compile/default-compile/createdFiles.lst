@@ -1,9 +1,0 @@
-top\chenray\qlogin\paper\command\RegisterCommand.class
-top\chenray\qlogin\paper\listener\PlayerListener.class
-top\chenray\qlogin\paper\command\ChangePasswordCommand.class
-top\chenray\qlogin\paper\DatabaseManager.class
-top\chenray\qlogin\paper\PasswordHasher.class
-top\chenray\qlogin\paper\command\LogoutCommand.class
-top\chenray\qlogin\paper\QLoginPaper.class
-top\chenray\qlogin\paper\command\LoginCommand.class
-top\chenray\qlogin\paper\AuthManager.class
