@@ -31,10 +31,9 @@ public class CommandManagerMixin {
             String cmdText = command.startsWith("/") ? command.substring(1) : command;
             String cmdName = cmdText.split(" ")[0].toLowerCase();
 
-            // 白名单
+            // 白名单 - 仅允许登录/注册相关命令
             if (cmdName.equals("register") || cmdName.equals("reg") ||
-                cmdName.equals("login") || cmdName.equals("l") || cmdName.equals("log") ||
-                cmdName.equals("loginmod")) {
+                cmdName.equals("login") || cmdName.equals("l") || cmdName.equals("log")) {
                 return;
             }
 
