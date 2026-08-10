@@ -26,7 +26,8 @@ public class AdminCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         // 需要 op 权限
         dispatcher.register(Commands.literal("qlogin")
-            .requires(source -> source.hasPermission(3))
+            .requires(source -> source.permissions() instanceof net.minecraft.server.permissions.LevelBasedPermissionSet s
+                && s.level().isEqualOrHigherThan(net.minecraft.server.permissions.PermissionLevel.byId(3)))
             .then(Commands.literal("reload")
                 .executes(context -> executeReload(context.getSource()))
             )
