@@ -1,8 +1,8 @@
 # ============================================================
-# QLogin v1_20_1-forge standalone build
+# QLogin v1_20-forge standalone build
 # Branch: v1.20.1-forge | Java: 17
 # ============================================================
-name: Build v1_20_1-forge
+name: Build v1_20-forge
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: "Build v1_20_1-forge"
+    name: "Build v1_20-forge"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,11 +34,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build
-        run: ./gradlew :v1_20_1-forge:build --no-daemon
+        run: ./gradlew :v1_20-forge:build --no-daemon
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: v1_20_1-forge
-          path: v1_20_1-forge/build/libs/*.jar
+          name: v1_20-forge
+          path: v1_20-forge/build/libs/*.jar
           if-no-files-found: warn
