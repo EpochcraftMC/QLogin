@@ -31,7 +31,7 @@ public interface TitleHelper {
         @Override
         public void sendTitle(ServerPlayer player, String title, String subtitle) {
             // fallback: 使用 ActionBar
-            player.displayClientMessage(
+            player.sendSystemMessage(
                 net.minecraft.network.chat.Component.literal("§6" + title + " §e" + subtitle),
                 true
             );

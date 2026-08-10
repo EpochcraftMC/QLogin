@@ -54,7 +54,7 @@ public class PlayerHandler {
         // 聊天消息拦截 - 未登录玩家不能发言 (1.21 Fabric API)
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
             if (!loginManager.isLoggedIn(sender.getUUID())) {
-                sender.displayClientMessage(Component.literal("§7[§b登录系统§7] §c✘ 请先登录后再发言！"), false);
+                sender.sendSystemMessage(Component.literal("§7[§b登录系统§7] §c✘ 请先登录后再发言！"));
                 return false; // 取消消息
             }
             return true;
@@ -121,15 +121,15 @@ public class PlayerHandler {
                 double dz = player.getZ() - loginPos[2];
 
                 if (Math.abs(dx) > 0.5 || Math.abs(dz) > 0.5) {
-                    player.teleportTo(server.overworld(),
-                        loginPos[0], loginPos[1], loginPos[2],
-                        (float) loginPos[3], (float) loginPos[4]);
+                    player.teleportTo(loginPos[0], loginPos[1], loginPos[2]);
+                    player.setYRot((float) loginPos[3]);
+                    player.setXRot((float) loginPos[4]);
                 }
 
                 if (player.getY() < -50) {
-                    player.teleportTo(server.overworld(),
-                        loginPos[0], loginPos[1], loginPos[2],
-                        (float) loginPos[3], (float) loginPos[4]);
+                    player.teleportTo(loginPos[0], loginPos[1], loginPos[2]);
+                    player.setYRot((float) loginPos[3]);
+                    player.setXRot((float) loginPos[4]);
                     player.setHealth(player.getMaxHealth());
                     player.getFoodData().setFoodLevel(20);
                 }

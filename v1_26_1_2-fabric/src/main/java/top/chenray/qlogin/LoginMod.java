@@ -96,7 +96,7 @@ public class LoginMod implements ModInitializer {
                 handler.send((net.minecraft.network.protocol.Packet<?>) titlePkt.getConstructor(Component.class)
                     .newInstance(Component.literal("§6" + title)));
             } catch (Exception e) {
-                player.displayClientMessage(Component.literal("§6" + title + " §e" + subtitle), true);
+                player.sendSystemMessage(Component.literal("§6" + title + " §e" + subtitle), true);
             }
         }
     }
