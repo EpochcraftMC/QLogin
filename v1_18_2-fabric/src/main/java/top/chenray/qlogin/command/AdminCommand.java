@@ -34,7 +34,7 @@ public class AdminCommand {
     private static final SuggestionProvider<ServerCommandSource> REGISTERED_PLAYERS =
         (context, builder) -> suggestRegisteredPlayers(builder);
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandManager.RegistrationEnvironment environment) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         var loginmod = CommandManager.literal("loginmod")
             .requires(source -> source.hasPermissionLevel(4)); // OP 权限等级 4
 

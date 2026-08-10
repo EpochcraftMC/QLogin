@@ -17,7 +17,7 @@ import net.minecraft.text.Text;
  */
 public class LoginCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandManager.RegistrationEnvironment environment) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         // /login <password>
         dispatcher.register(CommandManager.literal("login")
             .then(CommandManager.argument("password", StringArgumentType.word())

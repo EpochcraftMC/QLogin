@@ -15,7 +15,7 @@ import net.minecraft.text.Text;
  */
 public class LogoutCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandManager.RegistrationEnvironment environment) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(CommandManager.literal("logout")
             .executes(context -> {
                 ServerCommandSource source = context.getSource();

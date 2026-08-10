@@ -18,7 +18,7 @@ import net.minecraft.text.Text;
  */
 public class RegisterCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandManager.RegistrationEnvironment environment) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(CommandManager.literal("register")
             .then(CommandManager.argument("password", StringArgumentType.word())
                 .then(CommandManager.argument("confirmPassword", StringArgumentType.word())
