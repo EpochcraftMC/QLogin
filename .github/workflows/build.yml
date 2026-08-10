@@ -1,12 +1,12 @@
 # ============================================================
 # QLogin v1_20_2-fabric standalone build
-# Branch: v1.21.1-fabric | Java: 21
+# Branch: v1.20.2-fabric | Java: 21
 # ============================================================
 name: Build v1_20_2-fabric
 
 on:
   push:
-    branches: [ "main", "v1.21.1-fabric" ]
+    branches: [ "main", "v1.20.2-fabric" ]
     paths-ignore:
       - '**.md'
       - '.gitignore'
