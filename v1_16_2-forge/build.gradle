@@ -1,0 +1,82 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '[4.1.17,5)'
+}
+
+base {
+    archivesName = "QLogin-1.16.2"
+}
+
+version = rootProject.mod_version
+group = rootProject.maven_group
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+minecraft {
+    mappings channel: 'snapshot', version: '20200812-1.16.2'
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    runs {
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                qlogin {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "src/main/java"
+        }
+        resources {
+            srcDir "src/main/resources"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:1.16.2-33.0.0"
+
+    implementation 'org.xerial:sqlite-jdbc:' + rootProject.sqlite_jdbc_version
+}
+
+jar {
+    from {
+        configurations.runtimeClasspath.findAll {
+            it.name.contains('sqlite')
+        }.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+processResources {
+    inputs.property "version", project.version
+    filteringCharset "UTF-8"
+    filesMatching("mcmod.info") {
+        expand "version": project.version
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = 'UTF-8'
+}
+
+tasks.withType(Jar).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
