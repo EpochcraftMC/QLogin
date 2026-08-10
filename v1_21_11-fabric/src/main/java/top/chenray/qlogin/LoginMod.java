@@ -45,7 +45,7 @@ public class LoginMod implements ModInitializer {
         // 服务器启动时初始化
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             SERVER = server;
-            Path configDir = server.getRunDirectory().toPath().resolve("config").resolve("loginmod");
+            Path configDir = server.getRunDirectory().resolve("config").resolve("loginmod");
             ModConfig.load(configDir);
             LanguageManager.init();
             DatabaseManager.init(configDir);
