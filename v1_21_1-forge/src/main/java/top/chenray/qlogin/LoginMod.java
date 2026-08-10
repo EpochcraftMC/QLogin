@@ -74,7 +74,7 @@ public class LoginMod {
         server = event.getServer();
 
         // 配置目录: config/loginmod/
-        Path configDir = server.getServerDirectory().toPath().resolve("config").resolve("loginmod");
+        Path configDir = server.getServerDirectory().resolve("config").resolve("loginmod");
 
         // 加载配置
         top.chenray.qlogin.config.ModConfig.load(configDir);
