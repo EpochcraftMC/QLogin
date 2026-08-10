@@ -8,13 +8,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import org.slf4j.Logger;
 
 /**
@@ -82,7 +82,7 @@ public class PlayerHandler {
 
             // 检查登录超时
             if (loginManager.isLoginTimeout(player.getUUID())) {
-                player.connection.disconnect(Component.literal(TextUtils.t("login.timeout_kick")));
+                player.connection.disconnect(TextUtils.literal(TextUtils.t("login.timeout_kick")));
                 LOGGER.warn("Player {} login timeout, kicked", player.getDisplayName().getString());
                 continue;
             }
@@ -140,7 +140,7 @@ public class PlayerHandler {
         if (event.getEntity() instanceof ServerPlayer player) {
             if (!LoginManager.getInstance().isLoggedIn(player.getUUID())) {
                 if (event.getSide() == LogicalSide.SERVER) {
-                    player.sendSystemMessage(Component.literal(TextUtils.t("interact.blocked")));
+                    player.sendMessage(TextUtils.literal(TextUtils.t("interact.blocked")), player.getUUID());
                 }
                 event.setCanceled(true);
             }
@@ -167,7 +167,7 @@ public class PlayerHandler {
         if (event.getEntity() instanceof ServerPlayer player) {
             if (!LoginManager.getInstance().isLoggedIn(player.getUUID())) {
                 if (event.getSide() == LogicalSide.SERVER) {
-                    player.sendSystemMessage(Component.literal(TextUtils.t("interact.entity_blocked")));
+                    player.sendMessage(TextUtils.literal(TextUtils.t("interact.entity_blocked")), player.getUUID());
                 }
                 event.setCanceled(true);
             }
@@ -182,7 +182,7 @@ public class PlayerHandler {
         if (event.getPlayer() instanceof ServerPlayer) {
             ServerPlayer player = (ServerPlayer) event.getPlayer();
             if (!LoginManager.getInstance().isLoggedIn(player.getUUID())) {
-                player.sendSystemMessage(Component.literal(TextUtils.t("chat.blocked")));
+                player.sendMessage(TextUtils.literal(TextUtils.t("chat.blocked")), player.getUUID());
                 event.setCanceled(true);
             }
         }
@@ -192,8 +192,8 @@ public class PlayerHandler {
      * 玩家 Tick 事件 - 阻止未登录玩家移动（备用，辅佐 ServerTick 的位置冻结）
      */
     @SubscribeEvent
-    public void onPlayerTick(LivingEvent.LivingTickEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
+    public void onPlayerTick(PlayerTickEvent event) {
+        if (event.player instanceof ServerPlayer player) {
             LoginManager loginManager = LoginManager.getInstance();
             LoginState state = loginManager.getState(player.getUUID());
 

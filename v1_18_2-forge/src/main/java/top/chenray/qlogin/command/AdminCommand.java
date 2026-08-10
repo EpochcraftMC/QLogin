@@ -11,10 +11,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Map;
@@ -99,10 +99,10 @@ public class AdminCommand {
         LanguageManager.reload();
 
         if (configOk) {
-            source.sendSystemMessage(Component.literal(TextUtils.t("admin.reload")));
+            source.sendSuccess(TextUtils.literal(TextUtils.t("admin.reload")), true);
             LOGGER.info("管理员 {} 重新加载了配置", source.getTextName());
         } else {
-            source.sendSystemMessage(Component.literal(TextUtils.t("admin.reload_fail")));
+            source.sendSuccess(TextUtils.literal(TextUtils.t("admin.reload_fail")), true);
         }
 
         return configOk ? 1 : 0;
@@ -119,8 +119,7 @@ public class AdminCommand {
         UUID uuid = db.findUuidByUsername(playerName);
 
         if (uuid == null) {
-            source.sendSystemMessage(Component.literal(
-                TextUtils.t("admin.unregister_not_found", playerName)));
+            source.sendSuccess(TextUtils.literal(TextUtils.t("admin.unregister_not_found", playerName)), true);
             return 0;
         }
 
@@ -128,12 +127,11 @@ public class AdminCommand {
         ServerPlayer target = source.getServer().getPlayerList().getPlayer(uuid);
         if (target != null) {
             LoginManager.getInstance().setUnregistered(uuid);
-            target.connection.disconnect(Component.literal(TextUtils.t("kick.unregistered")));
+            target.connection.disconnect(new TextComponent(TextUtils.t("kick.unregistered")));
         }
 
         db.unregisterPlayer(uuid);
-        source.sendSystemMessage(Component.literal(
-            TextUtils.t("admin.unregister", playerName)));
+        source.sendSuccess(TextUtils.literal(TextUtils.t("admin.unregister", playerName)), true);
         LOGGER.info("管理员 {} 强制注销了玩家 {}", source.getTextName(), playerName);
         return 1;
     }
@@ -150,16 +148,15 @@ public class AdminCommand {
         UUID uuid = db.findUuidByUsername(playerName);
 
         if (uuid == null) {
-            source.sendSystemMessage(Component.literal(
-                TextUtils.t("admin.unregister_not_found", playerName)));
+            source.sendSuccess(TextUtils.literal(TextUtils.t("admin.unregister_not_found", playerName)), true);
             return 0;
         }
 
         // 验证新密码长度
         ModConfig config = ModConfig.getInstance();
         if (newPassword.length() < config.getPasswordMinLength() || newPassword.length() > config.getPasswordMaxLength()) {
-            source.sendSystemMessage(Component.literal(
-                "§c密码长度必须在 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 个字符之间"));
+            source.sendSuccess(TextUtils.literal(
+                "§c密码长度必须在 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 个字符之间"), true);
             return 0;
         }
 
@@ -168,14 +165,11 @@ public class AdminCommand {
         // 通知在线玩家
         ServerPlayer target = source.getServer().getPlayerList().getPlayer(uuid);
         if (target != null) {
-            target.sendSystemMessage(Component.literal(
-                TextUtils.t("admin.reset_password_notify", source.getTextName())));
-            target.sendSystemMessage(Component.literal(
-                TextUtils.t("admin.reset_password_new", newPassword)));
+            target.sendMessage(new TextComponent(TextUtils.t("admin.reset_password_notify", source.getTextName())), target.getUUID());
+            target.sendMessage(new TextComponent(TextUtils.t("admin.reset_password_new", newPassword)), target.getUUID());
         }
 
-        source.sendSystemMessage(Component.literal(
-            TextUtils.t("admin.reset_password", playerName)));
+        source.sendSuccess(TextUtils.literal(TextUtils.t("admin.reset_password", playerName)), true);
         LOGGER.info("管理员 {} 重置了玩家 {} 的密码", source.getTextName(), playerName);
         return 1;
     }
@@ -191,34 +185,29 @@ public class AdminCommand {
         UUID uuid = db.findUuidByUsername(playerName);
 
         if (uuid == null) {
-            source.sendSystemMessage(Component.literal(
-                TextUtils.t("admin.unregister_not_found", playerName)));
+            source.sendSuccess(TextUtils.literal(TextUtils.t("admin.unregister_not_found", playerName)), true);
             return 0;
         }
 
         Map<String, String> info = db.getPlayerInfo(uuid);
         if (info.isEmpty()) {
-            source.sendSystemMessage(Component.literal("§c无法获取玩家信息"));
+            source.sendSuccess(TextUtils.literal("§c无法获取玩家信息"), true);
             return 0;
         }
 
-        source.sendSystemMessage(Component.literal("§7=== §bQLogin 玩家信息 §7==="));
-        source.sendSystemMessage(Component.literal(
-            TextUtils.t("info.uuid", info.get("uuid"))));
-        source.sendSystemMessage(Component.literal(
-            TextUtils.t("info.username", info.get("username"))));
-        source.sendSystemMessage(Component.literal(
-            TextUtils.t("info.register_time", info.get("register_time"))));
-        source.sendSystemMessage(Component.literal(
-            TextUtils.t("info.last_login", info.get("last_login"))));
-        source.sendSystemMessage(Component.literal(
-            TextUtils.t("info.login_fail", info.get("login_fail_count"))));
+        source.sendSuccess(TextUtils.literal("§7=== §bQLogin 玩家信息 §7==="), true);
+        source.sendSuccess(TextUtils.literal(TextUtils.t("info.uuid", info.get("uuid"))), true);
+        source.sendSuccess(TextUtils.literal(TextUtils.t("info.username", info.get("username"))), true);
+        source.sendSuccess(TextUtils.literal(TextUtils.t("info.register_time", info.get("register_time"))), true);
+        source.sendSuccess(TextUtils.literal(TextUtils.t("info.last_login", info.get("last_login"))), true);
+        source.sendSuccess(TextUtils.literal(
+            TextUtils.t("info.login_fail", info.get("login_fail_count"))), true);
 
         // 格式化 IP 历史
         String ipHistory = info.get("ip_history");
         if (ipHistory != null) {
-            source.sendSystemMessage(Component.literal(
-                TextUtils.t("info.ip_history", ipHistory)));
+            source.sendSuccess(TextUtils.literal(
+                TextUtils.t("info.ip_history", ipHistory)), true);
         }
 
         return 1;

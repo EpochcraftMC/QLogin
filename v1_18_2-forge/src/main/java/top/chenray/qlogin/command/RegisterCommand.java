@@ -7,7 +7,6 @@ import top.chenray.qlogin.database.DatabaseManager;
 import top.chenray.qlogin.util.TextUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -26,11 +25,7 @@ public class RegisterCommand {
                 .then(Commands.argument("confirmPassword", StringArgumentType.word())
                     .executes(context -> {
                         CommandSourceStack source = context.getSource();
-                        ServerPlayer player = source.getPlayer();
-                        if (player == null) {
-                            source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
-                            return 0;
-                        }
+                        ServerPlayer player = source.getPlayerOrException();
 
                         String password = StringArgumentType.getString(context, "password");
                         String confirmPassword = StringArgumentType.getString(context, "confirmPassword");
@@ -49,27 +44,27 @@ public class RegisterCommand {
 
         // 检查是否已登录
         if (state == LoginState.LOGGED_IN) {
-            TextUtils.sendMsg(player, "login.already");
+            TextUtils.sendMsg(player, player.getUUID(), "login.already");
             return 0;
         }
 
         // 检查是否已注册
         if (db.isPlayerRegistered(player.getUUID())) {
-            TextUtils.sendMsg(player, "register.exists");
+            TextUtils.sendMsg(player, player.getUUID(), "register.exists");
             return 0;
         }
 
         // 验证密码长度
         ModConfig config = ModConfig.getInstance();
         if (password.length() < config.getPasswordMinLength() || password.length() > config.getPasswordMaxLength()) {
-            TextUtils.sendMsg(player, "register.password_length",
+            TextUtils.sendMsg(player, player.getUUID(), "register.password_length",
                 config.getPasswordMinLength(), config.getPasswordMaxLength());
             return 0;
         }
 
         // 验证两次密码一致
         if (!password.equals(confirmPassword)) {
-            TextUtils.sendMsg(player, "register.password_mismatch");
+            TextUtils.sendMsg(player, player.getUUID(), "register.password_mismatch");
             return 0;
         }
 
@@ -79,12 +74,12 @@ public class RegisterCommand {
         if (db.registerPlayer(player.getUUID(), player.getDisplayName().getString(), password, ip)) {
             loginManager.setLoggedIn(player.getUUID());
             loginManager.resetLoginFails(player.getUUID());
-            TextUtils.sendMsg(player, "register.success", player.getDisplayName().getString());
+            TextUtils.sendMsg(player, player.getUUID(), "register.success", player.getDisplayName().getString());
             TextUtils.sendTitle(player, "注册成功", "欢迎加入服务器！");
             LOGGER.info("Player {} registered", player.getDisplayName().getString());
             return 1;
         } else {
-            TextUtils.sendMsg(player, "register.fail");
+            TextUtils.sendMsg(player, player.getUUID(), "register.fail");
             return 0;
         }
     }

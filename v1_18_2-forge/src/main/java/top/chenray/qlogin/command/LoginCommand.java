@@ -7,7 +7,6 @@ import top.chenray.qlogin.database.DatabaseManager;
 import top.chenray.qlogin.util.TextUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -26,11 +25,7 @@ public class LoginCommand {
             .then(Commands.argument("password", StringArgumentType.word())
                 .executes(context -> {
                     CommandSourceStack source = context.getSource();
-                    ServerPlayer player = source.getPlayer();
-                    if (player == null) {
-                        source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
-                        return 0;
-                    }
+                    ServerPlayer player = source.getPlayerOrException();
                     String password = StringArgumentType.getString(context, "password");
                     return executeLogin(player, password);
                 })
@@ -42,11 +37,7 @@ public class LoginCommand {
             .then(Commands.argument("password", StringArgumentType.word())
                 .executes(context -> {
                     CommandSourceStack source = context.getSource();
-                    ServerPlayer player = source.getPlayer();
-                    if (player == null) {
-                        source.sendFailure(Component.literal("§c此命令只能由玩家执行"));
-                        return 0;
-                    }
+                    ServerPlayer player = source.getPlayerOrException();
                     String password = StringArgumentType.getString(context, "password");
                     return executeLogin(player, password);
                 })
@@ -60,12 +51,12 @@ public class LoginCommand {
         DatabaseManager db = DatabaseManager.getInstance();
 
         if (state == LoginState.LOGGED_IN) {
-            TextUtils.sendWarning(player, "login.already");
+            TextUtils.sendWarning(player, player.getUUID(), "login.already");
             return 0;
         }
 
         if (!db.isPlayerRegistered(player.getUUID())) {
-            TextUtils.sendMsg(player, "register.exists");
+            TextUtils.sendMsg(player, player.getUUID(), "register.exists");
             return 0;
         }
 
@@ -76,7 +67,7 @@ public class LoginCommand {
             String ip = loginManager.getPlayerIp(player);
             db.updateLoginInfo(player.getUUID(), ip);
 
-            TextUtils.sendSuccess(player, "login.success", player.getDisplayName().getString());
+            TextUtils.sendSuccess(player, player.getUUID(), "login.success", player.getDisplayName().getString());
             TextUtils.sendTitle(player, "登录成功", "欢迎回来！");
 
             LOGGER.info("Player {} logged in", player.getDisplayName().getString());
@@ -86,10 +77,10 @@ public class LoginCommand {
             int maxAttempts = ModConfig.getInstance().getMaxLoginAttempts();
 
             if (banned) {
-                TextUtils.sendMsg(player, "ban.too_many_attempts");
-                player.connection.disconnect(Component.literal(TextUtils.t("ban.too_many_attempts")));
+                TextUtils.sendMsg(player, player.getUUID(), "ban.too_many_attempts");
+                player.connection.disconnect(TextUtils.literal(TextUtils.t("ban.too_many_attempts")));
             } else {
-                TextUtils.sendMsg(player, "login.fail", maxAttempts);
+                TextUtils.sendMsg(player, player.getUUID(), "login.fail", maxAttempts);
             }
             return 0;
         }

@@ -74,21 +74,21 @@ public class LoginManager {
 
         // 检查 IP 是否被封禁（内存封禁）
         if (isIpBanned(ip)) {
-            player.connection.disconnect(Component.literal(TextUtils.t("ban.ip_kick")));
+            player.connection.disconnect(TextUtils.literal(TextUtils.t("ban.ip_kick")));
             return;
         }
 
         // 发送欢迎消息
         LoginState state = playerStates.get(uuid);
         if (state == LoginState.UNREGISTERED) {
-            TextUtils.sendMsg(player, "welcome.title_register");
-            TextUtils.sendMsg(player, "login.unregistered");
-            TextUtils.sendMsg(player, "register.password_length",
+            TextUtils.sendMsg(player, player.getUUID(), "welcome.title_register");
+            TextUtils.sendMsg(player, player.getUUID(), "login.unregistered");
+            TextUtils.sendMsg(player, player.getUUID(), "register.password_length",
                 ModConfig.getInstance().getPasswordMinLength(),
                 ModConfig.getInstance().getPasswordMaxLength());
         } else {
-            TextUtils.sendMsg(player, "welcome.title_login");
-            TextUtils.sendMsg(player, "login.registered");
+            TextUtils.sendMsg(player, player.getUUID(), "welcome.title_login");
+            TextUtils.sendMsg(player, player.getUUID(), "login.registered");
         }
     }
 
