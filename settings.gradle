@@ -16,4 +16,4 @@ rootProject.name = 'loginmod'
 // ==================== Single-version branch ====================
 // This branch builds only one MC version, independently.
 // Build: gradlew :{module}:build
-include 'v1_20_1-forge'
+include 'v1_19_1-forge'
