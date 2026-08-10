@@ -53,7 +53,7 @@ public class AdminCommand {
     }
 
     private static int executeReload(CommandSourceStack source) {
-        ModConfig.load(source.getServer().getServerDirectory().toPath().resolve("config").resolve("loginmod"));
+        ModConfig.load(source.getServer().getServerDirectory().resolve("config").resolve("loginmod"));
         LanguageManager.reload();
         TextUtils.sendMsg(source, "admin.reload");
         LOGGER.info("QLogin config reloaded by {}", source.getTextName());
