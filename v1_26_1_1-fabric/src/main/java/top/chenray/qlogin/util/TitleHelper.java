@@ -1,6 +1,6 @@
 package top.chenray.qlogin.util;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 /**
  * 版本适配接口 - 各版本模块提供独立实现
@@ -19,7 +19,7 @@ public interface TitleHelper {
     }
 
     /** 发送标题（大标题 + 副标题） */
-    void sendTitle(ServerPlayerEntity player, String title, String subtitle);
+    void sendTitle(ServerPlayer player, String title, String subtitle);
 
     /** 内部持有类 */
     class Holder {
@@ -29,10 +29,10 @@ public interface TitleHelper {
     /** 默认空实现（无版本适配时保底） */
     class DefaultTitleHelper implements TitleHelper {
         @Override
-        public void sendTitle(ServerPlayerEntity player, String title, String subtitle) {
+        public void sendTitle(ServerPlayer player, String title, String subtitle) {
             // fallback: 使用 ActionBar
-            player.sendMessage(
-                net.minecraft.text.Text.literal("§6" + title + " §e" + subtitle),
+            player.displayClientMessage(
+                net.minecraft.network.chat.Component.literal("§6" + title + " §e" + subtitle),
                 true
             );
         }

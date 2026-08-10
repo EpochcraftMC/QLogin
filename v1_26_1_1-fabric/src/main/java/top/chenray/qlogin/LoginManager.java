@@ -4,8 +4,8 @@ import top.chenray.qlogin.config.ModConfig;
 import top.chenray.qlogin.database.DatabaseManager;
 import top.chenray.qlogin.util.TextUtils;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
@@ -57,8 +57,8 @@ public class LoginManager {
     /**
      * 玩家加入服务器
      */
-    public void onPlayerJoin(ServerPlayerEntity player) {
-        UUID uuid = player.getUuid();
+    public void onPlayerJoin(ServerPlayer player) {
+        UUID uuid = player.getUUID();
         String ip = getPlayerIp(player);
 
         playerIps.put(uuid, ip);
@@ -75,7 +75,7 @@ public class LoginManager {
 
         // 检查 IP 是否被封禁（内存封禁）
         if (isIpBanned(ip)) {
-            player.networkHandler.disconnect(Text.literal(TextUtils.t("ban.ip_kick")));
+            player.connection.disconnect(Component.literal(TextUtils.t("ban.ip_kick")));
             return;
         }
 
@@ -94,8 +94,8 @@ public class LoginManager {
     /**
      * 玩家离开服务器
      */
-    public void onPlayerDisconnect(ServerPlayerEntity player) {
-        UUID uuid = player.getUuid();
+    public void onPlayerDisconnect(ServerPlayer player) {
+        UUID uuid = player.getUUID();
         playerStates.remove(uuid);
         joinTimes.remove(uuid);
         loginPositions.remove(uuid);
@@ -154,9 +154,9 @@ public class LoginManager {
     /**
      * 记录玩家登录时的位置
      */
-    public void recordLoginPosition(ServerPlayerEntity player) {
-        loginPositions.put(player.getUuid(), new double[]{
-            player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch()
+    public void recordLoginPosition(ServerPlayer player) {
+        loginPositions.put(player.getUUID(), new double[]{
+            player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot()
         });
     }
 
@@ -197,10 +197,10 @@ public class LoginManager {
     /**
      * 获取玩家 IP 地址
      */
-    public String getPlayerIp(ServerPlayerEntity player) {
+    public String getPlayerIp(ServerPlayer player) {
         try {
-            if (player.networkHandler != null) {
-                var addr = player.networkHandler.getConnectionAddress();
+            if (player.connection != null) {
+                var addr = player.connection.getConnection().getRemoteAddress();
                 if (addr instanceof java.net.InetSocketAddress socketAddr) {
                     return socketAddr.getAddress().getHostAddress();
                 }
