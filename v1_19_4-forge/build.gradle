@@ -4,7 +4,7 @@ plugins {
 }
 
 base {
-    archivesName = "${rootProject.archives_base_name}-1.20.1"
+    archivesName = "${rootProject.archives_base_name}-1.19.4"
 }
 
 version = rootProject.mod_version
@@ -15,7 +15,7 @@ java {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.20.1'
+    mappings channel: 'official', version: '1.19.4'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         server {
@@ -47,7 +47,7 @@ repositories {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${rootProject.forge_1_20_1}"
+    minecraft "net.minecraftforge:forge:${rootProject.forge_1_19_4}"
 
     implementation 'org.xerial:sqlite-jdbc:' + rootProject.sqlite_jdbc_version
 }
@@ -58,7 +58,7 @@ jar {
             'Specification-Title'     : 'QLogin',
             'Specification-Vendor'    : 'aqing',
             'Specification-Version'   : '1',
-            'Implementation-Title'    : 'QLogin-1.20.1',
+            'Implementation-Title'    : 'QLogin-1.19.4',
             'Implementation-Version'  : rootProject.mod_version,
             'Implementation-Vendor'   : 'aqing'
         ])
@@ -79,7 +79,7 @@ tasks.withType(JavaCompile).configureEach {
     it.options.release = 17
 }
 
-// jar 中打包 SQLite 驱动
+// Bundle SQLite driver into jar
 jar {
     from {
         configurations.runtimeClasspath.findAll {
@@ -93,8 +93,4 @@ jar {
 
 tasks.withType(Jar).configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-compileJava {
-    dependsOn ':v1_20_1:processResources'
 }
