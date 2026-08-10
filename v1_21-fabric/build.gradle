@@ -49,5 +49,5 @@ tasks.withType(Jar).configureEach {
 }
 
 compileJava {
-    dependsOn ':v1_21:processResources'
+    dependsOn ':v1_21-fabric:processResources'
 }
