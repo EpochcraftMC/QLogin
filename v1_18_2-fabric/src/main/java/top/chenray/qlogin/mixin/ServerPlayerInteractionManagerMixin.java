@@ -28,7 +28,7 @@ public class ServerPlayerInteractionManagerMixin {
     private void onInteractBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand,
                                   BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         if (!LoginManager.getInstance().isLoggedIn(player.getUuid())) {
-            player.sendMessage(net.minecraft.text.Text.literal("§c⚠ 请先登录后再与方块交互！"), true);
+            player.sendMessage(new net.minecraft.text.LiteralText("§c⚠ 请先登录后再与方块交互！"), true);
             cir.setReturnValue(ActionResult.FAIL);
         }
     }

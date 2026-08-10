@@ -32,7 +32,7 @@ public interface TitleHelper {
         public void sendTitle(ServerPlayerEntity player, String title, String subtitle) {
             // fallback: 使用 ActionBar
             player.sendMessage(
-                net.minecraft.text.Text.literal("§6" + title + " §e" + subtitle),
+                new net.minecraft.text.LiteralText("§6" + title + " §e" + subtitle),
                 true
             );
         }
