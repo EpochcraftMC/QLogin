@@ -133,11 +133,11 @@ public class AdminCommand {
         ServerCommandSource source = context.getSource();
         if (ModConfig.reload()) {
             LanguageManager.reload();
-            source.sendMessage(TextUtils.prefixed(Text.literal(LanguageManager.tr("admin.reload"))));
+            source.sendFeedback(() -> TextUtils.prefixed(Text.literal(LanguageManager.tr("admin.reload"))), false);
             LOGGER.info("Admin {} reloaded config", source.getName());
             return 1;
         } else {
-            source.sendMessage(TextUtils.prefixed(Text.literal(LanguageManager.tr("admin.reload_fail"))));
+            source.sendFeedback(() -> TextUtils.prefixed(Text.literal(LanguageManager.tr("admin.reload_fail"))), false);
             return 0;
         }
     }
@@ -166,11 +166,11 @@ public class AdminCommand {
         }
 
         if (success) {
-            source.sendMessage(TextUtils.success("已强制注销玩家 §e" + targetName));
+            source.sendFeedback(() -> TextUtils.success("已强制注销玩家 §e" + targetName), false);
             LOGGER.info("管理员 {} 强制注销了玩家 {}", source.getName(), targetName);
             return 1;
         } else {
-            source.sendMessage(TextUtils.error("未找到玩家 §e" + targetName + "§c 的注册信息"));
+            source.sendFeedback(() -> TextUtils.error("未找到玩家 §e" + targetName + "§c 的注册信息"), false);
             return 0;
         }
     }
@@ -187,7 +187,7 @@ public class AdminCommand {
         // 验证密码长度
         ModConfig config = ModConfig.getInstance();
         if (newPassword.length() < config.getPasswordMinLength() || newPassword.length() > config.getPasswordMaxLength()) {
-            source.sendMessage(TextUtils.error("密码长度必须在 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 个字符之间"));
+            source.sendFeedback(() -> TextUtils.error("密码长度必须在 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 个字符之间"), false);
             return 0;
         }
 
@@ -206,12 +206,12 @@ public class AdminCommand {
         }
 
         if (uuid == null) {
-            source.sendMessage(TextUtils.error("玩家 §e" + targetName + "§c 尚未注册"));
+            source.sendFeedback(() -> TextUtils.error("玩家 §e" + targetName + "§c 尚未注册"), false);
             return 0;
         }
 
         if (db.changePassword(java.util.UUID.fromString(uuid), newPassword)) {
-            source.sendMessage(TextUtils.success("已重置玩家 §e" + targetName + "§a 的密码"));
+            source.sendFeedback(() -> TextUtils.success("已重置玩家 §e" + targetName + "§a 的密码"), false);
 
             if (target != null) {
                 target.sendMessage(TextUtils.warning("管理员 §e" + source.getName() + "§e 已重置你的密码"));
@@ -221,7 +221,7 @@ public class AdminCommand {
             LOGGER.info("管理员 {} 重置了玩家 {} 的密码", source.getName(), targetName);
             return 1;
         } else {
-            source.sendMessage(TextUtils.error("密码重置失败"));
+            source.sendFeedback(() -> TextUtils.error("密码重置失败"), false);
             return 0;
         }
     }
@@ -235,23 +235,23 @@ public class AdminCommand {
 
         Map<String, Object> info = DatabaseManager.getInstance().getPlayerInfo(targetName);
         if (info == null) {
-            source.sendMessage(TextUtils.error("玩家 §e" + targetName + "§c 尚未注册"));
+            source.sendFeedback(() -> TextUtils.error("玩家 §e" + targetName + "§c 尚未注册"), false);
             return 0;
         }
 
-        source.sendMessage(Text.literal("§7用户名: §e" + info.get("username")));
-        source.sendMessage(Text.literal("§7UUID: §f" + info.get("uuid")));
-        source.sendMessage(Text.literal("§7注册时间: §b" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            .format(new java.util.Date((Long) info.get("register_time")))));
-        source.sendMessage(Text.literal("§7最后登录: §b" + (info.get("last_login") != null ?
-            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date((Long) info.get("last_login"))) : "无")));
-        source.sendMessage(Text.literal("§7登录失败: §c" + info.get("login_fail_count")));
+        source.sendFeedback(() -> Text.literal("§7用户名: §e" + info.get("username")), false);
+        source.sendFeedback(() -> Text.literal("§7UUID: §f" + info.get("uuid")), false);
+        source.sendFeedback(() -> Text.literal("§7注册时间: §b" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            .format(new java.util.Date((Long) info.get("register_time")))), false);
+        source.sendFeedback(() -> Text.literal("§7最后登录: §b" + (info.get("last_login") != null ?
+            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date((Long) info.get("last_login"))) : "无")), false);
+        source.sendFeedback(() -> Text.literal("§7登录失败: §c" + info.get("login_fail_count")), false);
 
         @SuppressWarnings("unchecked")
         var ipHistory = (java.util.List<String>) new com.google.gson.Gson().fromJson(
             (String) info.get("ip_history"), java.util.List.class);
         if (ipHistory != null && !ipHistory.isEmpty()) {
-            source.sendMessage(Text.literal("§7IP历史: §f" + String.join("§7, §f", ipHistory)));
+            source.sendFeedback(() -> Text.literal("§7IP历史: §f" + String.join("§7, §f", ipHistory)), false);
         }
 
         return 1;
