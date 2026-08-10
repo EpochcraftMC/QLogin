@@ -14,7 +14,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 /**
- * /changepassword <鏃у瘑鐮? <鏂板瘑鐮? - 淇敼瀵嗙爜鍛戒护
+ * /changepassword <旧密码> <新密码> - 修改密码命令
  */
 public class ChangePasswordCommand {
 
@@ -26,7 +26,7 @@ public class ChangePasswordCommand {
                         ServerCommandSource source = context.getSource();
                         ServerPlayerEntity player = source.getPlayer();
                         if (player == null) {
-                            source.sendError(new LiteralText("搂c姝ゅ懡浠ゅ彧鑳界敱鐜╁鎵ц"));
+                            source.sendError(new LiteralText("§c此命令只能由玩家执行"));
                             return 0;
                         }
                         String oldPassword = StringArgumentType.getString(context, "oldPassword");
@@ -43,39 +43,39 @@ public class ChangePasswordCommand {
         LoginState state = loginManager.getState(player.getUuid());
         DatabaseManager db = DatabaseManager.getInstance();
 
-        // 蹇呴』宸茬櫥褰?
+        // 必须已登录
         if (state != LoginState.LOGGED_IN) {
-            player.sendMessage(new LiteralText("搂c璇峰厛鐧诲綍鍚庡啀淇敼瀵嗙爜"), false);
+            player.sendMessage(new LiteralText("§c请先登录后再修改密码"));
             return 0;
         }
 
-        // 楠岃瘉鏃у瘑鐮?
+        // 验证旧密码
         if (!db.verifyPassword(player.getUuid(), oldPassword)) {
-            player.sendMessage(new LiteralText("搂c鏃у瘑鐮侀敊璇?), false);
+            player.sendMessage(new LiteralText("§c旧密码错误"));
             return 0;
         }
 
-        // 楠岃瘉鏂板瘑鐮侀暱搴?
+        // 验证新密码长度
         ModConfig config = ModConfig.getInstance();
         if (newPassword.length() < config.getPasswordMinLength() || newPassword.length() > config.getPasswordMaxLength()) {
-            player.sendMessage(new LiteralText("搂c鏂板瘑鐮侀暱搴﹀繀椤诲湪 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 涓瓧绗︿箣闂?, false);
+            player.sendMessage(new LiteralText("§c新密码长度必须在 " + config.getPasswordMinLength() + "-" + config.getPasswordMaxLength() + " 个字符之间"));
             return 0;
         }
 
-        // 鏂版棫瀵嗙爜涓嶈兘鐩稿悓
+        // 新旧密码不能相同
         if (oldPassword.equals(newPassword)) {
-            player.sendMessage(new LiteralText("搂c鏂板瘑鐮佷笉鑳戒笌鏃у瘑鐮佺浉鍚?), false);
+            player.sendMessage(new LiteralText("§c新密码不能与旧密码相同"));
             return 0;
         }
 
-        // 鎵ц淇敼
-        player.sendMessage(new LiteralText("搂7姝ｅ湪淇敼瀵嗙爜..."), false);
+        // 执行修改
+        player.sendMessage(new LiteralText("§7正在修改密码..."));
         if (db.changePassword(player.getUuid(), newPassword)) {
             TextUtils.sendSuccess(player, "password.change_success");
-            LOGGER.info("鐜╁ {} 宸蹭慨鏀瑰瘑鐮?, player.getName().getString());
+            LOGGER.info("玩家 {} 已修改密码", player.getName().getString());
             return 1;
         } else {
-            player.sendMessage(new LiteralText("搂c瀵嗙爜淇敼澶辫触锛岃绋嶅悗閲嶈瘯"), false);
+            player.sendMessage(new LiteralText("§c密码修改失败，请稍后重试"));
             return 0;
         }
     }

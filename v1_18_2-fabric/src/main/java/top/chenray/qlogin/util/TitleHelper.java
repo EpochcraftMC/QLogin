@@ -3,36 +3,36 @@ package top.chenray.qlogin.util;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 /**
- * 鐗堟湰閫傞厤鎺ュ彛 - 鍚勭増鏈ā鍧楁彁渚涚嫭绔嬪疄鐜?
- * 澶勭悊璺ㄧ増鏈笉涓€鑷寸殑 Minecraft API锛堝 TitleS2CPacket锛?
+ * 版本适配接口 - 各版本模块提供独立实现
+ * 处理跨版本不一致的 Minecraft API（如 TitleS2CPacket）
  */
 public interface TitleHelper {
 
-    /** 鑾峰彇褰撳墠鐗堟湰鐨勯€傞厤鍣ㄥ疄渚?*/
+    /** 获取当前版本的适配器实例 */
     static TitleHelper getInstance() {
         return Holder.INSTANCE;
     }
 
-    /** 璁剧疆閫傞厤鍣ㄥ疄渚嬶紙鐢卞悇鐗堟湰妯″潡鐨勫叆鍙ｈ皟鐢級 */
+    /** 设置适配器实例（由各版本模块的入口调用） */
     static void setInstance(TitleHelper instance) {
         Holder.INSTANCE = instance;
     }
 
-    /** 鍙戦€佹爣棰橈紙澶ф爣棰?+ 鍓爣棰橈級 */
+    /** 发送标题（大标题 + 副标题） */
     void sendTitle(ServerPlayerEntity player, String title, String subtitle);
 
-    /** 鍐呴儴鎸佹湁绫?*/
+    /** 内部持有类 */
     class Holder {
         private static TitleHelper INSTANCE = new DefaultTitleHelper();
     }
 
-    /** 榛樿绌哄疄鐜帮紙鏃犵増鏈€傞厤鏃朵繚搴曪級 */
+    /** 默认空实现（无版本适配时保底） */
     class DefaultTitleHelper implements TitleHelper {
         @Override
         public void sendTitle(ServerPlayerEntity player, String title, String subtitle) {
-            // fallback: 浣跨敤 ActionBar
+            // fallback: 使用 ActionBar
             player.sendMessage(
-                net.minecraft.text.Text.literal("搂6" + title + " 搂e" + subtitle),
+                net.minecraft.text.Text.literal("§6" + title + " §e" + subtitle),
                 true
             );
         }
