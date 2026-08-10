@@ -1,29 +1,11 @@
 pluginManagement {
     repositories {
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
-        maven {
-            name = 'Forge'
-            url = 'https://maven.minecraftforge.net/'
-        }
-        maven {
-            name = 'ForgeGradle'
-            url = 'https://maven.minecraftforge.net/'
-        }
-        maven {
-            name = 'NeoForge'
-            url = 'https://maven.neoforged.net/releases/'
-        }
-        maven {
-            name = 'Sponge'
-            url = 'https://repo.spongepowered.org/maven'
-        }
-        maven {
-            name = 'GTNH Maven'
-            url = 'https://nexus.gtnewhorizons.com/repository/public/'
-        }
+        maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
+        maven { name = 'Forge'; url = 'https://maven.minecraftforge.net/' }
+        maven { name = 'ForgeGradle'; url = 'https://maven.minecraftforge.net/' }
+        maven { name = 'NeoForge'; url = 'https://maven.neoforged.net/releases/' }
+        maven { name = 'Sponge'; url = 'https://repo.spongepowered.org/maven' }
+        maven { name = 'GTNH Maven'; url = 'https://nexus.gtnewhorizons.com/repository/public/' }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -37,18 +19,7 @@ plugins {
 
 rootProject.name = 'loginmod'
 
-// ==================== 多版本子项目 ====================
-// 每个子项目编译为一个独立的 Mod Jar
-// 目录命名规则: v{MC版本}-{加载器}
-// 构建: gradlew :v1_12_2-forge:build  或  :v1_21_1-fabric:build  等
-
-include 'v1_12_2-forge'
-include 'v1_19_2-forge'
-include 'v1_19_2-fabric'
+// ==================== Single-version branch ====================
+// This branch builds only one MC version, independently.
+// Build: gradlew :{module}:build
 include 'v1_20_1-forge'
-include 'v1_20_1-fabric'
-include 'v1_20_1-neoforge'
-include 'v1_21-fabric'
-include 'v1_21_1-fabric'
-include 'v1_21_1-neoforge'
-include 'v1_26_2-fabric'
