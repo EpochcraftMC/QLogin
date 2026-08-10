@@ -10,11 +10,9 @@ import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ServerChatEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent.Phase;
 import net.neoforged.fml.LogicalSide;
 import org.slf4j.Logger;
 
@@ -26,8 +24,7 @@ import org.slf4j.Logger;
  * - PlayerEvent.PlayerLoggedOutEvent → 玩家离开
  * - ServerChatEvent                 → 聊天事件
  * - PlayerInteractEvent             → 交互事件
- * - ServerTickEvent                 → 服务器 Tick
- * - LivingEvent.LivingTickEvent     → 实体 Tick
+ * - ServerTickEvent.Post            → 服务器 Tick（END 阶段）
  */
 public class PlayerHandler {
 
@@ -63,9 +60,7 @@ public class PlayerHandler {
      * 服务器 Tick 事件 - 检查登录超时和冻结玩家位置
      */
     @SubscribeEvent
-    public void onServerTick(ServerTickEvent event) {
-        if (event.getPhase() != Phase.END) return;
-
+    public void onServerTick(ServerTickEvent.Post event) {
         LoginManager loginManager = LoginManager.getInstance();
 
         // 清理过期封禁
@@ -184,26 +179,6 @@ public class PlayerHandler {
         if (!LoginManager.getInstance().isLoggedIn(player.getUUID())) {
             player.sendSystemMessage(Component.literal(TextUtils.t("chat.blocked")));
             event.setCanceled(true);
-        }
-    }
-
-    /**
-     * 玩家 Tick 事件 - 阻止未登录玩家移动（备用）
-     */
-    @SubscribeEvent
-    public void onPlayerTick(LivingEvent.LivingTickEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            LoginManager loginManager = LoginManager.getInstance();
-            LoginState state = loginManager.getState(player.getUUID());
-
-            if (state == LoginState.LOGGED_IN) return;
-
-            double[] loginPos = loginManager.getLoginPosition(player.getUUID());
-            if (loginPos != null && loginManager.isPlayerFrozen(player.getUUID())) {
-                player.teleportTo(loginPos[0], loginPos[1], loginPos[2]);
-                player.setYRot((float) loginPos[3]);
-                player.setXRot((float) loginPos[4]);
-            }
         }
     }
 }
