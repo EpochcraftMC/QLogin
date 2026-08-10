@@ -30,8 +30,8 @@ repositories {
 dependencies {
     minecraft "com.mojang:minecraft:${rootProject.mc_26_2}"
     // MC 26.2 为不混淆版本，使用 unobfuscated loom（不设置 mappings）
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_26_2}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_26_2}"
+    implementation "net.fabricmc:fabric-loader:${rootProject.loader_26_2}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_26_2}"
 
     include "org.xerial:sqlite-jdbc:${rootProject.sqlite_jdbc_version}"
 }
