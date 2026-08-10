@@ -3,18 +3,18 @@ plugins {
 }
 
 base {
-    archivesName = "${rootProject.archives_base_name}-1.21.1-neoforge"
+    archivesName = "${rootProject.archives_base_name}-26.1.1-neoforge"
 }
 
 version = rootProject.mod_version
 group = rootProject.maven_group
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.21.1'
+    mappings channel: 'official', version: '26.1.1'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         server {
@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${rootProject.neoforge_1_21_1}"
+    implementation "net.neoforged:neoforge:${rootProject.neoforge_26_1_1}"
 
     implementation 'org.xerial:sqlite-jdbc:' + rootProject.sqlite_jdbc_version
 }
@@ -55,7 +55,7 @@ jar {
             'Specification-Title'     : 'QLogin',
             'Specification-Vendor'    : 'aqing',
             'Specification-Version'   : '1',
-            'Implementation-Title'    : 'QLogin-1.21.1-NeoForge',
+            'Implementation-Title'    : 'QLogin-26.1.1-NeoForge',
             'Implementation-Version'  : rootProject.mod_version,
             'Implementation-Vendor'   : 'aqing'
         ])
@@ -73,10 +73,10 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = 'UTF-8'
-    it.options.release = 21
+    it.options.release = 25
 }
 
-// jar 中打包 SQLite 驱动
+// Bundle SQLite driver into jar
 jar {
     from {
         configurations.runtimeClasspath.findAll {
