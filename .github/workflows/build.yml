@@ -1,12 +1,12 @@
 # ============================================================
 # QLogin v1_20_6-neoforge standalone build
-# Branch: v1.21.1-neoforge | Java: 21
+# Branch: v1.20.6-neoforge | Java: 21
 # ============================================================
 name: Build v1_20_6-neoforge
 
 on:
   push:
-    branches: [ "main", "v1.21.1-neoforge" ]
+    branches: [ "main", "v1.20.6-neoforge" ]
     paths-ignore:
       - '**.md'
       - '.gitignore'
