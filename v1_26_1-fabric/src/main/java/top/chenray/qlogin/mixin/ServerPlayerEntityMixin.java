@@ -1,8 +1,9 @@
 package top.chenray.qlogin.mixin;
 
 import top.chenray.qlogin.LoginManager;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.damage.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,10 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ServerPlayerEntityMixin {
 
     /**
-     * 拦截 damage - 未登录玩家免疫所有伤害
+     * 拦截 hurtServer - 未登录玩家免疫所有伤害
      */
-    @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
-    private void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    private void onDamage(ServerLevel level, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity self = (LivingEntity) (Object) this;
         if (self instanceof ServerPlayer player) {
             if (!LoginManager.getInstance().isLoggedIn(player.getUUID())) {

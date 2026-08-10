@@ -200,7 +200,7 @@ public class LoginManager {
     public String getPlayerIp(ServerPlayer player) {
         try {
             if (player.connection != null) {
-                var addr = player.connection.getConnection().getRemoteAddress();
+                var addr = player.connection.getRemoteAddress();
                 if (addr instanceof java.net.InetSocketAddress socketAddr) {
                     return socketAddr.getAddress().getHostAddress();
                 }

@@ -36,7 +36,8 @@ public class AdminCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
         var loginmod = Commands.literal("loginmod")
-            .requires(source -> source.hasPermission(4)); // OP 权限等级 4
+            .requires(source -> source.permissions() instanceof net.minecraft.server.permissions.LevelBasedPermissionSet s
+                && s.level().isEqualOrHigherThan(net.minecraft.server.permissions.PermissionLevel.OWNERS)); // OP 权限等级 4
 
         // /loginmod reload - 重载配置
         loginmod.then(Commands.literal("reload")
@@ -214,8 +215,8 @@ public class AdminCommand {
             source.sendSystemMessage(TextUtils.success("已重置玩家 §e" + targetName + "§a 的密码"));
 
             if (target != null) {
-                target.displayClientMessage(TextUtils.warning("管理员 §e" + source.getTextName() + "§e 已重置你的密码"), false);
-                target.displayClientMessage(TextUtils.info("新密码: §e" + newPassword + "§b，请尽快修改"), false);
+                target.sendSystemMessage(TextUtils.warning("管理员 §e" + source.getTextName() + "§e 已重置你的密码"));
+                target.sendSystemMessage(TextUtils.info("新密码: §e" + newPassword + "§b，请尽快修改"));
             }
 
             LOGGER.info("管理员 {} 重置了玩家 {} 的密码", source.getTextName(), targetName);
