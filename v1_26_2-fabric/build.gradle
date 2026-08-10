@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.17.12'
+    id 'net.fabricmc.fabric-loom' version '1.17.12'
 }
 
 base {
@@ -35,10 +35,7 @@ dependencies {
 
     include "org.xerial:sqlite-jdbc:${rootProject.sqlite_jdbc_version}"
 }
-
-loom {
-    mixin.defaultRefmapName = "QLogin-26.2-refmap.json"
-}
+
 
 processResources {
     inputs.property "version", project.version
