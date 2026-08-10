@@ -3,7 +3,7 @@ plugins {
 }
 
 base {
-    archivesName = "${rootProject.archives_base_name}-1.21.1"
+    archivesName = "${rootProject.archives_base_name}-1.19.4"
 }
 
 sourceSets {
@@ -22,15 +22,15 @@ repositories {
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${rootProject.mc_1_21_1}"
-    mappings "net.fabricmc:yarn:${rootProject.yarn_1_21_1}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_1_21_1}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_1_21_1}"
+    minecraft "com.mojang:minecraft:${rootProject.mc_1_19_4}"
+    mappings "net.fabricmc:yarn:${rootProject.yarn_1_19_4}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_1_19_4}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_1_19_4}"
     include "org.xerial:sqlite-jdbc:${rootProject.sqlite_jdbc_version}"
 }
 
 loom {
-    mixin.defaultRefmapName = "QLogin-1.21.1-refmap.json"
+    mixin.defaultRefmapName = "QLogin-1.19.4-refmap.json"
 }
 
 processResources {
