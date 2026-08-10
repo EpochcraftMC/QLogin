@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 璇█绠＄悊鍣?- 鏀寔澶氳瑷€
- * 璇█鏂囦欢浣嶄簬 assets/qlogin/lang/{locale}.json
+ * 语言管理器 - 支持多语言
+ * 语言文件位于 assets/qlogin/lang/{locale}.json
  */
 public class LanguageManager {
 
@@ -24,14 +24,15 @@ public class LanguageManager {
     private static String currentLocale = "zh_cn";
 
     /**
-     * 鍒濆鍖栬瑷€绠＄悊鍣?     */
+     * 初始化语言管理器
+     */
     public static void init() {
         currentLocale = ModConfig.getInstance().getLanguage();
         loadLocale(currentLocale);
     }
 
     /**
-     * 閲嶆柊鍔犺浇璇█
+     * 重新加载语言
      */
     public static void reload() {
         currentLocale = ModConfig.getInstance().getLanguage();
@@ -40,38 +41,39 @@ public class LanguageManager {
     }
 
     /**
-     * 鍔犺浇鎸囧畾璇█鏂囦欢
+     * 加载指定语言文件
      */
     private static void loadLocale(String locale) {
         String path = "/assets/qlogin/lang/" + locale + ".json";
         try (InputStreamReader reader = new InputStreamReader(
                 LanguageManager.class.getResourceAsStream(path), StandardCharsets.UTF_8)) {
             if (reader == null) {
-                LOGGER.warn("鏈壘鍒拌瑷€鏂囦欢: {}, 浣跨敤 zh_cn", path);
+                LOGGER.warn("未找到语言文件: {}, 使用 zh_cn", path);
                 loadLocale("zh_cn");
                 return;
             }
             Map<String, String> loaded = GSON.fromJson(reader, MAP_TYPE);
             if (loaded != null) {
                 translations.putAll(loaded);
-                LOGGER.info("宸插姞杞借瑷€: {} ({} 鏉?", locale, translations.size());
+                LOGGER.info("已加载语言: {} ({} 条)", locale, translations.size());
             }
         } catch (Exception e) {
-            LOGGER.error("鍔犺浇璇█鏂囦欢澶辫触: {}", path, e);
+            LOGGER.error("加载语言文件失败: {}", path, e);
         }
 
-        // 纭繚鑷冲皯鏈変竴浠界炕璇?        if (translations.isEmpty()) {
+        // 确保至少有一份翻译
+        if (translations.isEmpty()) {
             loadDefault();
         }
     }
 
     /**
-     * 鑾峰彇缈昏瘧
+     * 获取翻译
      */
     public static String tr(String key, Object... args) {
         String text = translations.get(key);
         if (text == null) {
-            return "搂c{" + key + "}搂r";
+            return "§c{" + key + "}§r";
         }
         if (args.length > 0) {
             text = String.format(text, args);
@@ -80,55 +82,55 @@ public class LanguageManager {
     }
 
     /**
-     * 鑾峰彇褰撳墠璇█
+     * 获取当前语言
      */
     public static String getCurrentLocale() {
         return currentLocale;
     }
 
     private static void loadDefault() {
-        translations.put("prefix", "搂7[搂bQLogin搂7]搂r ");
-        translations.put("login.registered", "鎮ㄥ凡娉ㄥ唽锛屼娇鐢?搂6/login <瀵嗙爜> 搂b鐧诲綍");
-        translations.put("login.unregistered", "璇峰厛娉ㄥ唽: 搂6/register <瀵嗙爜> <纭瀵嗙爜>");
-        translations.put("login.success", "鐧诲綍鎴愬姛锛佹杩庡洖鏉?搂e%s");
-        translations.put("login.fail", "瀵嗙爜閿欒锛岃閲嶈瘯");
-        translations.put("login.already", "鎮ㄥ凡缁忕櫥褰曚簡");
-        translations.put("login.timeout_kick", "搂c搂l鐧诲綍瓒呮椂锛乗n搂7璇烽噸鏂拌繛鎺ュ苟浣跨敤 /login 鐧诲綍");
-        translations.put("register.success", "娉ㄥ唽鎴愬姛锛佹杩?搂e%s");
-        translations.put("register.fail", "娉ㄥ唽澶辫触锛岃閲嶈瘯");
-        translations.put("register.exists", "璇ヨ处鍙峰凡娉ㄥ唽锛岃浣跨敤 /login 鐧诲綍");
-        translations.put("register.password_mismatch", "涓ゆ杈撳叆鐨勫瘑鐮佷笉涓€鑷?);
-        translations.put("register.password_length", "瀵嗙爜闀垮害椤诲湪 %d-%d 涓瓧绗︿箣闂?);
-        translations.put("logout.success", "鎮ㄥ凡鎴愬姛鐧诲嚭");
-        translations.put("logout.not_logged", "鎮ㄨ繕娌℃湁鐧诲綍");
-        translations.put("password.change_success", "瀵嗙爜淇敼鎴愬姛");
-        translations.put("password.wrong_old", "鏃у瘑鐮侀敊璇?);
-        translations.put("password.same", "鏂板瘑鐮佷笉鑳戒笌鏃у瘑鐮佺浉鍚?);
-        translations.put("command.blocked", "搂c鉁?璇峰厛鐧诲綍鍚庡啀鎵ц鍛戒护锛?);
-        translations.put("chat.blocked", "搂c鉁?璇峰厛鐧诲綍鍚庡啀鍙戦€佽亰澶╂秷鎭紒");
-        translations.put("interact.blocked", "搂c鈿?璇峰厛鐧诲綍鍚庡啀涓庢柟鍧椾氦浜掞紒");
-        translations.put("interact.entity_blocked", "搂c鈿?璇峰厛鐧诲綍鍚庡啀涓庡疄浣撲氦浜掞紒");
-        translations.put("actionbar.register", "搂c鈿?搂e璇锋敞鍐岃处鍙?搂6/register <瀵嗙爜> <纭瀵嗙爜>");
-        translations.put("actionbar.login", "搂c鈿?搂e璇风櫥褰曡处鍙?搂6/login <瀵嗙爜>");
-        translations.put("actionbar.urgent", "搂c鈿?搂e璇风珛鍗?s锛伮?(搂c%d搂7)");
-        translations.put("actionbar.register_urgent", "娉ㄥ唽");
-        translations.put("actionbar.login_urgent", "鐧诲綍");
-        translations.put("admin.reload", "閰嶇疆宸查噸鏂板姞杞?);
-        translations.put("admin.unregister", "宸插己鍒舵敞閿€鐜╁ 搂e%s");
-        translations.put("admin.unregister_not_found", "鏈壘鍒扮帺瀹?搂e%s搂c 鐨勬敞鍐屼俊鎭?);
-        translations.put("admin.reset_password", "宸查噸缃帺瀹?搂e%s搂a 鐨勫瘑鐮?);
-        translations.put("admin.reset_password_notify", "绠＄悊鍛?搂e%s搂e 宸查噸缃偍鐨勫瘑鐮?);
-        translations.put("admin.reset_password_new", "鏂板瘑鐮? 搂e%s搂b锛岃灏藉揩淇敼");
-        translations.put("progress.verifying", "姝ｅ湪楠岃瘉...");
-        translations.put("progress.registering", "姝ｅ湪娉ㄥ唽...");
-        translations.put("progress.changing_password", "姝ｅ湪淇敼瀵嗙爜...");
-        translations.put("welcome.title_register", "娆㈣繋鏉ュ埌鏈嶅姟鍣紒");
-        translations.put("welcome.title_login", "娆㈣繋鍥炴潵锛?);
-        translations.put("welcome.sub_register", "璇峰厛娉ㄥ唽璐﹀彿");
-        translations.put("welcome.sub_login", "璇风櫥褰曡处鍙?);
-        translations.put("kick.unregistered", "搂e鎮ㄧ殑璐﹀彿宸茶绠＄悊鍛樺己鍒舵敞閿€锛岃閲嶆柊娉ㄥ唽");
-        translations.put("ban.ip_kick", "搂c鎮ㄧ殑 IP 宸茶涓存椂灏佺锛岃绋嶅悗鍐嶈瘯");
-        translations.put("ban.too_many_attempts", "搂c瀵嗙爜閿欒娆℃暟杩囧锛孖P 宸茶涓存椂灏佺");
-        translations.put("failcount.remaining", "鍓╀綑娆℃暟: 搂e%d");
+        translations.put("prefix", "§7[§bQLogin§7]§r ");
+        translations.put("login.registered", "您已注册，使用 §6/login <密码> §b登录");
+        translations.put("login.unregistered", "请先注册: §6/register <密码> <确认密码>");
+        translations.put("login.success", "登录成功！欢迎回来 §e%s");
+        translations.put("login.fail", "密码错误，请重试");
+        translations.put("login.already", "您已经登录了");
+        translations.put("login.timeout_kick", "§c§l登录超时！\n§7请重新连接并使用 /login 登录");
+        translations.put("register.success", "注册成功！欢迎 §e%s");
+        translations.put("register.fail", "注册失败，请重试");
+        translations.put("register.exists", "该账号已注册，请使用 /login 登录");
+        translations.put("register.password_mismatch", "两次输入的密码不一致");
+        translations.put("register.password_length", "密码长度须在 %d-%d 个字符之间");
+        translations.put("logout.success", "您已成功登出");
+        translations.put("logout.not_logged", "您还没有登录");
+        translations.put("password.change_success", "密码修改成功");
+        translations.put("password.wrong_old", "旧密码错误");
+        translations.put("password.same", "新密码不能与旧密码相同");
+        translations.put("command.blocked", "§c✘ 请先登录后再执行命令！");
+        translations.put("chat.blocked", "§c✘ 请先登录后再发送聊天消息！");
+        translations.put("interact.blocked", "§c⚠ 请先登录后再与方块交互！");
+        translations.put("interact.entity_blocked", "§c⚠ 请先登录后再与实体交互！");
+        translations.put("actionbar.register", "§c⚠ §e请注册账号 §6/register <密码> <确认密码>");
+        translations.put("actionbar.login", "§c⚠ §e请登录账号 §6/login <密码>");
+        translations.put("actionbar.urgent", "§c⚠ §e请立即%s！§7(§c%d§7)");
+        translations.put("actionbar.register_urgent", "注册");
+        translations.put("actionbar.login_urgent", "登录");
+        translations.put("admin.reload", "配置已重新加载");
+        translations.put("admin.unregister", "已强制注销玩家 §e%s");
+        translations.put("admin.unregister_not_found", "未找到玩家 §e%s§c 的注册信息");
+        translations.put("admin.reset_password", "已重置玩家 §e%s§a 的密码");
+        translations.put("admin.reset_password_notify", "管理员 §e%s§e 已重置您的密码");
+        translations.put("admin.reset_password_new", "新密码: §e%s§b，请尽快修改");
+        translations.put("progress.verifying", "正在验证...");
+        translations.put("progress.registering", "正在注册...");
+        translations.put("progress.changing_password", "正在修改密码...");
+        translations.put("welcome.title_register", "欢迎来到服务器！");
+        translations.put("welcome.title_login", "欢迎回来！");
+        translations.put("welcome.sub_register", "请先注册账号");
+        translations.put("welcome.sub_login", "请登录账号");
+        translations.put("kick.unregistered", "§e您的账号已被管理员强制注销，请重新注册");
+        translations.put("ban.ip_kick", "§c您的 IP 已被临时封禁，请稍后再试");
+        translations.put("ban.too_many_attempts", "§c密码错误次数过多，IP 已被临时封禁");
+        translations.put("failcount.remaining", "剩余次数: §e%d");
     }
 }

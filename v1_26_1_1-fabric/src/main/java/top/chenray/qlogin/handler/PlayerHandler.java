@@ -12,54 +12,55 @@ import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 /**
- * 鐜╁浜嬩欢澶勭悊鍣?- 澶勭悊鍔犲叆銆佺寮€銆佽涪鍑虹瓑浜嬩欢
+ * 玩家事件处理器 - 处理加入、离开、踢出等事件
  */
 public class PlayerHandler {
 
     private static final Logger LOGGER = top.chenray.qlogin.LoginMod.LOGGER;
 
     /**
-     * 娉ㄥ唽鎵€鏈変簨浠剁洃鍚櫒
+     * 注册所有事件监听器
      */
     public static void register() {
         LoginManager loginManager = LoginManager.getInstance();
 
-        // 鐜╁鍔犲叆浜嬩欢
+        // 玩家加入事件
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.getPlayer();
 
-            // 璁板綍鐧诲綍浣嶇疆
+            // 记录登录位置
             loginManager.recordLoginPosition(player);
 
-            // 澶勭悊鍔犲叆
+            // 处理加入
             loginManager.onPlayerJoin(player);
         });
 
-        // 鐜╁绂诲紑浜嬩欢
+        // 玩家离开事件
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             ServerPlayer player = handler.getPlayer();
             loginManager.onPlayerDisconnect(player);
         });
 
-        // 鏂瑰潡鐮村潖浜嬩欢 - 闃绘鏈櫥褰曠帺瀹剁牬鍧忔柟鍧?        PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, entity) -> {
+        // 方块破坏事件 - 阻止未登录玩家破坏方块
+        PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, entity) -> {
             if (player instanceof ServerPlayer serverPlayer) {
                 if (!loginManager.isLoggedIn(serverPlayer.getUUID())) {
-                    return false; // 鍙栨秷浜嬩欢
+                    return false; // 取消事件
                 }
             }
             return true;
         });
 
-        // 鑱婂ぉ娑堟伅鎷︽埅 - 鏈櫥褰曠帺瀹朵笉鑳藉彂瑷€ (1.21 Fabric API)
+        // 聊天消息拦截 - 未登录玩家不能发言 (1.21 Fabric API)
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
             if (!loginManager.isLoggedIn(sender.getUUID())) {
-                sender.sendSystemMessage(Component.literal("搂7[搂b鐧诲綍绯荤粺搂7] 搂c鉁?璇峰厛鐧诲綍鍚庡啀鍙戣█锛?));
-                return false; // 鍙栨秷娑堟伅
+                sender.sendSystemMessage(Component.literal("§7[§b登录系统§7] §c✘ 请先登录后再发言！"));
+                return false; // 取消消息
             }
             return true;
         });
 
-        // 鏂瑰潡鏀剧疆/浜や簰浜嬩欢 - 闃绘鏈櫥褰曠帺瀹舵斁缃柟鍧楀拰浣跨敤鏂瑰潡
+        // 方块放置/交互事件 - 阻止未登录玩家放置方块和使用方块
         net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             if (player instanceof ServerPlayer serverPlayer) {
                 if (!loginManager.isLoggedIn(serverPlayer.getUUID())) {
@@ -69,7 +70,8 @@ public class PlayerHandler {
             return net.minecraft.world.InteractionResult.PASS;
         });
 
-        // 鏀诲嚮瀹炰綋浜嬩欢 - 闃绘鏈櫥褰曠帺瀹舵敾鍑?        net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+        // 攻击实体事件 - 阻止未登录玩家攻击
+        net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             if (player instanceof ServerPlayer serverPlayer) {
                 if (!loginManager.isLoggedIn(serverPlayer.getUUID())) {
                     return net.minecraft.world.InteractionResult.FAIL;
@@ -78,7 +80,7 @@ public class PlayerHandler {
             return net.minecraft.world.InteractionResult.PASS;
         });
 
-        // 浣跨敤瀹炰綋浜嬩欢 - 闃绘鏈櫥褰曠帺瀹朵笌瀹炰綋浜や簰
+        // 使用实体事件 - 阻止未登录玩家与实体交互
         net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             if (player instanceof ServerPlayer serverPlayer) {
                 if (!loginManager.isLoggedIn(serverPlayer.getUUID())) {
@@ -90,12 +92,12 @@ public class PlayerHandler {
     }
 
     /**
-     * 鏈嶅姟绔?Tick 澶勭悊 - 妫€鏌ョ櫥褰曡秴鏃跺拰鍐荤粨鐜╁浣嶇疆
+     * 服务端 Tick 处理 - 检查登录超时和冻结玩家位置
      */
     public static void onServerTick(MinecraftServer server) {
         LoginManager loginManager = LoginManager.getInstance();
 
-        // 娓呯悊杩囨湡灏佺
+        // 清理过期封禁
         loginManager.cleanExpiredBans();
 
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -105,13 +107,15 @@ public class PlayerHandler {
                 continue;
             }
 
-            // 妫€鏌ョ櫥褰曡秴鏃?            if (loginManager.isLoginTimeout(player.getUUID())) {
+            // 检查登录超时
+            if (loginManager.isLoginTimeout(player.getUUID())) {
                 player.connection.disconnect(Component.literal(TextUtils.t("login.timeout_kick")));
                 LOGGER.warn("Player {} login timeout, kicked", player.getName().getString());
                 continue;
             }
 
-            // 鍐荤粨鐜╁浣嶇疆 - 闃叉鏈櫥褰曠帺瀹剁Щ鍔?            double[] loginPos = loginManager.getLoginPosition(player.getUUID());
+            // 冻结玩家位置 - 防止未登录玩家移动
+            double[] loginPos = loginManager.getLoginPosition(player.getUUID());
             if (loginPos != null) {
                 double dx = player.getX() - loginPos[0];
                 double dz = player.getZ() - loginPos[2];
@@ -131,7 +135,8 @@ public class PlayerHandler {
                 }
             }
 
-            // 姣?10 绉掑彂閫佷竴娆℃彁绀?            long remaining = loginManager.getRemainingTime(player.getUUID());
+            // 每 10 秒发送一次提示
+            long remaining = loginManager.getRemainingTime(player.getUUID());
             if (remaining > 0 && remaining % 10 == 0) {
                 if (state == LoginState.UNREGISTERED) {
                     TextUtils.sendActionBar(player, "actionbar.register", String.valueOf(remaining));

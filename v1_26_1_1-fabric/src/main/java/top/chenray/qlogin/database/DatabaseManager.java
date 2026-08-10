@@ -18,8 +18,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 鏁版嵁搴撶鐞嗗櫒 - 浣跨敤 SQLite 瀛樺偍鐜╁鏁版嵁
- * 鏁版嵁鏂囦欢: config/loginmod/players.db
+ * 数据库管理器 - 使用 SQLite 存储玩家数据
+ * 数据文件: config/loginmod/players.db
  */
 public class DatabaseManager {
 
@@ -35,7 +35,8 @@ public class DatabaseManager {
     }
 
     /**
-     * 鍒濆鍖栨暟鎹簱绠＄悊鍣?     */
+     * 初始化数据库管理器
+     */
     public static synchronized DatabaseManager init(Path configDir) {
         if (instance == null) {
             instance = new DatabaseManager(configDir);
@@ -48,31 +49,33 @@ public class DatabaseManager {
     }
 
     /**
-     * 杩炴帴鏁版嵁搴撳苟鍒涘缓琛?     */
+     * 连接数据库并创建表
+     */
     public void connect() {
         try {
-            // 纭繚鐩綍瀛樺湪
+            // 确保目录存在
             Files.createDirectories(dbPath.getParent());
 
-            // 寤虹珛杩炴帴
+            // 建立连接
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath.toString());
 
-            // 鍚敤 WAL 妯″紡鎻愬崌鎬ц兘
+            // 启用 WAL 模式提升性能
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute("PRAGMA journal_mode=WAL");
                 stmt.execute("PRAGMA synchronous=NORMAL");
             }
 
             createTables();
-            LOGGER.info("鏁版嵁搴撳凡杩炴帴: {}", dbPath);
+            LOGGER.info("数据库已连接: {}", dbPath);
         } catch (Exception e) {
-            LOGGER.error("鏁版嵁搴撹繛鎺ュけ璐?, e);
-            throw new RuntimeException("鏃犳硶杩炴帴鍒版暟鎹簱", e);
+            LOGGER.error("数据库连接失败", e);
+            throw new RuntimeException("无法连接到数据库", e);
         }
     }
 
     /**
-     * 鍒涘缓鏁版嵁琛?     */
+     * 创建数据表
+     */
     private void createTables() throws SQLException {
         String sql = """
             CREATE TABLE IF NOT EXISTS players (
@@ -93,14 +96,14 @@ public class DatabaseManager {
             stmt.execute(sql);
         }
 
-        // 鍒涘缓绱㈠紩
+        // 创建索引
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_username ON players(username)");
         }
     }
 
     /**
-     * 妫€鏌ョ帺瀹舵槸鍚﹀凡娉ㄥ唽
+     * 检查玩家是否已注册
      */
     public boolean isPlayerRegistered(UUID uuid) {
         String sql = "SELECT COUNT(*) FROM players WHERE uuid = ?";
@@ -109,13 +112,14 @@ public class DatabaseManager {
             ResultSet rs = pstmt.executeQuery();
             return rs.next() && rs.getInt(1) > 0;
         } catch (SQLException e) {
-            LOGGER.error("妫€鏌ョ帺瀹舵敞鍐岀姸鎬佸け璐?, e);
+            LOGGER.error("检查玩家注册状态失败", e);
             return false;
         }
     }
 
     /**
-     * 娉ㄥ唽鏂扮帺瀹?     */
+     * 注册新玩家
+     */
     public boolean registerPlayer(UUID uuid, String username, String password, String ip) {
         String hash = PasswordHasher.createPasswordHash(password);
         String sql = """
@@ -130,22 +134,22 @@ public class DatabaseManager {
             pstmt.setLong(4, Instant.now().toEpochMilli());
             pstmt.setLong(5, Instant.now().toEpochMilli());
 
-            // IP 鍘嗗彶
+            // IP 历史
             List<String> ips = new ArrayList<>();
             ips.add(ip);
             pstmt.setString(6, GSON.toJson(ips));
 
             pstmt.executeUpdate();
-            LOGGER.info("鐜╁ {} ({}) 宸叉敞鍐?, username, uuid);
+            LOGGER.info("玩家 {} ({}) 已注册", username, uuid);
             return true;
         } catch (SQLException e) {
-            LOGGER.error("娉ㄥ唽鐜╁澶辫触", e);
+            LOGGER.error("注册玩家失败", e);
             return false;
         }
     }
 
     /**
-     * 楠岃瘉鐜╁瀵嗙爜
+     * 验证玩家密码
      */
     public boolean verifyPassword(UUID uuid, String password) {
         String sql = "SELECT password_hash FROM players WHERE uuid = ?";
@@ -157,13 +161,13 @@ public class DatabaseManager {
                 return PasswordHasher.verifyPassword(password, storedHash);
             }
         } catch (SQLException e) {
-            LOGGER.error("楠岃瘉瀵嗙爜澶辫触", e);
+            LOGGER.error("验证密码失败", e);
         }
         return false;
     }
 
     /**
-     * 鏇存柊鏈€鍚庣櫥褰曟椂闂村拰 IP
+     * 更新最后登录时间和 IP
      */
     public void updateLoginInfo(UUID uuid, String ip) {
         String sql = "SELECT ip_history FROM players WHERE uuid = ?";
@@ -192,12 +196,12 @@ public class DatabaseManager {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.error("鏇存柊鐧诲綍淇℃伅澶辫触", e);
+            LOGGER.error("更新登录信息失败", e);
         }
     }
 
     /**
-     * 淇敼瀵嗙爜
+     * 修改密码
      */
     public boolean changePassword(UUID uuid, String newPassword) {
         String hash = PasswordHasher.createPasswordHash(newPassword);
@@ -206,16 +210,16 @@ public class DatabaseManager {
             pstmt.setString(1, hash);
             pstmt.setString(2, uuid.toString());
             int updated = pstmt.executeUpdate();
-            LOGGER.info("鐜╁ {} 瀵嗙爜宸蹭慨鏀?, uuid);
+            LOGGER.info("玩家 {} 密码已修改", uuid);
             return updated > 0;
         } catch (SQLException e) {
-            LOGGER.error("淇敼瀵嗙爜澶辫触", e);
+            LOGGER.error("修改密码失败", e);
             return false;
         }
     }
 
     /**
-     * 澧炲姞鐧诲綍澶辫触璁℃暟
+     * 增加登录失败计数
      */
     public int incrementFailCount(UUID uuid) {
         String sql = "UPDATE players SET login_fail_count = login_fail_count + 1 WHERE uuid = ?";
@@ -223,10 +227,11 @@ public class DatabaseManager {
             pstmt.setString(1, uuid.toString());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.error("澧炲姞澶辫触璁℃暟澶辫触", e);
+            LOGGER.error("增加失败计数失败", e);
         }
 
-        // 鑾峰彇鏈€鏂拌鏁?        String querySql = "SELECT login_fail_count FROM players WHERE uuid = ?";
+        // 获取最新计数
+        String querySql = "SELECT login_fail_count FROM players WHERE uuid = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(querySql)) {
             pstmt.setString(1, uuid.toString());
             ResultSet rs = pstmt.executeQuery();
@@ -234,13 +239,13 @@ public class DatabaseManager {
                 return rs.getInt("login_fail_count");
             }
         } catch (SQLException e) {
-            LOGGER.error("鑾峰彇澶辫触璁℃暟澶辫触", e);
+            LOGGER.error("获取失败计数失败", e);
         }
         return 0;
     }
 
     /**
-     * 閲嶇疆澶辫触璁℃暟
+     * 重置失败计数
      */
     public void resetFailCount(UUID uuid) {
         String sql = "UPDATE players SET login_fail_count = 0 WHERE uuid = ?";
@@ -248,29 +253,30 @@ public class DatabaseManager {
             pstmt.setString(1, uuid.toString());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.error("閲嶇疆澶辫触璁℃暟澶辫触", e);
+            LOGGER.error("重置失败计数失败", e);
         }
     }
 
     /**
-     * 瑙ｉ櫎鐜╁娉ㄥ唽锛堝己鍒舵敞閿€锛?     */
+     * 解除玩家注册（强制注销）
+     */
     public boolean unregisterPlayer(String username) {
         String sql = "DELETE FROM players WHERE username = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, username);
             int deleted = pstmt.executeUpdate();
             if (deleted > 0) {
-                LOGGER.info("鐜╁ {} 宸茶寮哄埗娉ㄩ攢", username);
+                LOGGER.info("玩家 {} 已被强制注销", username);
                 return true;
             }
         } catch (SQLException e) {
-            LOGGER.error("寮哄埗娉ㄩ攢鐜╁澶辫触", e);
+            LOGGER.error("强制注销玩家失败", e);
         }
         return false;
     }
 
     /**
-     * 閫氳繃 UUID 瑙ｉ櫎娉ㄥ唽
+     * 通过 UUID 解除注册
      */
     public boolean unregisterPlayerByUuid(UUID uuid) {
         String sql = "DELETE FROM players WHERE uuid = ?";
@@ -278,13 +284,13 @@ public class DatabaseManager {
             pstmt.setString(1, uuid.toString());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.error("寮哄埗娉ㄩ攢鐜╁澶辫触", e);
+            LOGGER.error("强制注销玩家失败", e);
             return false;
         }
     }
 
     /**
-     * 鑾峰彇鐜╁淇℃伅锛堢敤浜庣鐞嗗懡浠わ級
+     * 获取玩家信息（用于管理命令）
      */
     public Map<String, Object> getPlayerInfo(String username) {
         String sql = "SELECT * FROM players WHERE username = ?";
@@ -302,13 +308,14 @@ public class DatabaseManager {
                 return info;
             }
         } catch (SQLException e) {
-            LOGGER.error("鑾峰彇鐜╁淇℃伅澶辫触", e);
+            LOGGER.error("获取玩家信息失败", e);
         }
         return null;
     }
 
     /**
-     * 鑾峰彇鐜╁鍚?     */
+     * 获取玩家名
+     */
     public String getUsername(UUID uuid) {
         String sql = "SELECT username FROM players WHERE uuid = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -318,13 +325,13 @@ public class DatabaseManager {
                 return rs.getString("username");
             }
         } catch (SQLException e) {
-            LOGGER.error("鑾峰彇鐜╁鍚嶅け璐?, e);
+            LOGGER.error("获取玩家名失败", e);
         }
         return null;
     }
 
     /**
-     * 妫€鏌ョ帺瀹舵槸鍚﹁灏佺
+     * 检查玩家是否被封禁
      */
     public boolean isBanned(UUID uuid) {
         String sql = "SELECT is_banned, ban_expiry FROM players WHERE uuid = ?";
@@ -337,21 +344,21 @@ public class DatabaseManager {
                     if (expiry > 0 && Instant.now().toEpochMilli() < expiry) {
                         return true;
                     } else if (expiry > 0) {
-                        // 灏佺宸茶繃鏈燂紝鑷姩瑙ｅ皝
+                        // 封禁已过期，自动解封
                         unbanPlayer(uuid);
                         return false;
                     }
-                    return true; // 姘镐箙灏佺
+                    return true; // 永久封禁
                 }
             }
         } catch (SQLException e) {
-            LOGGER.error("妫€鏌ュ皝绂佺姸鎬佸け璐?, e);
+            LOGGER.error("检查封禁状态失败", e);
         }
         return false;
     }
 
     /**
-     * 灏佺鐜╁
+     * 封禁玩家
      */
     public void banPlayer(UUID uuid, String reason, long durationSeconds) {
         long expiry = durationSeconds > 0 ? Instant.now().toEpochMilli() + (durationSeconds * 1000) : 0;
@@ -362,12 +369,12 @@ public class DatabaseManager {
             pstmt.setString(3, uuid.toString());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.error("灏佺鐜╁澶辫触", e);
+            LOGGER.error("封禁玩家失败", e);
         }
     }
 
     /**
-     * 瑙ｅ皝鐜╁
+     * 解封玩家
      */
     public void unbanPlayer(UUID uuid) {
         String sql = "UPDATE players SET is_banned = 0, ban_reason = NULL, ban_expiry = NULL WHERE uuid = ?";
@@ -375,26 +382,28 @@ public class DatabaseManager {
             pstmt.setString(1, uuid.toString());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.error("瑙ｅ皝鐜╁澶辫触", e);
+            LOGGER.error("解封玩家失败", e);
         }
     }
 
     /**
-     * 鑾峰彇鏁版嵁搴撹繛鎺ワ紙浠呬緵鍐呴儴鏌ヨ浣跨敤锛?     */
+     * 获取数据库连接（仅供内部查询使用）
+     */
     public java.sql.Connection getConnection() {
         return connection;
     }
 
     /**
-     * 鍏抽棴鏁版嵁搴撹繛鎺?     */
+     * 关闭数据库连接
+     */
     public void close() {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();
-                LOGGER.info("鏁版嵁搴撹繛鎺ュ凡鍏抽棴");
+                LOGGER.info("数据库连接已关闭");
             }
         } catch (SQLException e) {
-            LOGGER.error("鍏抽棴鏁版嵁搴撹繛鎺ュけ璐?, e);
+            LOGGER.error("关闭数据库连接失败", e);
         }
     }
 }

@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Mixin - 鎷︽埅鐜╁浜や簰琛屼负 (1.21)
- * 1.21 涓柟娉曠鍚嶄笌 1.20.x 鍏煎
+ * Mixin - 拦截玩家交互行为 (1.21)
+ * 1.21 中方法签名与 1.20.x 兼容
  */
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerInteractionManagerMixin {
@@ -24,12 +24,12 @@ public class ServerPlayerInteractionManagerMixin {
     private void onInteractBlock(ServerPlayer player, Level world, ItemStack stack, InteractionHand hand,
                                   BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
         if (!LoginManager.getInstance().isLoggedIn(player.getUUID())) {
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal("搂c鈿?璇峰厛鐧诲綍鍚庡啀涓庢柟鍧椾氦浜掞紒"), true);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§c⚠ 请先登录后再与方块交互！"), true);
             cir.setReturnValue(InteractionResult.FAIL);
         }
     }
 
-    // interactEntity - 1.21 姝ゆ柟娉曠鍚嶆湁鍙樺寲锛岀敱 Fabric API 浜嬩欢澶勭悊
+    // interactEntity - 1.21 此方法签名有变化，由 Fabric API 事件处理
 
     @Inject(method = "useItem", at = @At("HEAD"), cancellable = true)
     private void onInteractItem(ServerPlayer player, Level world, ItemStack stack, InteractionHand hand,

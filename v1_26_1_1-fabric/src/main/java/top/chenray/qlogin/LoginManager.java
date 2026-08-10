@@ -15,32 +15,32 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 鐧诲綍绠＄悊鍣?- 绠＄悊鐜╁鐧诲綍鐘舵€併€佽秴鏃躲€両P 灏佺
+ * 登录管理器 - 管理玩家登录状态、超时、IP 封禁
  */
 public class LoginManager {
 
     private static final Logger LOGGER = LoginMod.LOGGER;
     private static LoginManager instance;
 
-    /** 鐜╁鐧诲綍鐘舵€?*/
+    /** 玩家登录状态 */
     private final Map<UUID, LoginState> playerStates = new ConcurrentHashMap<>();
 
-    /** 鐜╁鍔犲叆鏃堕棿锛堢敤浜庤秴鏃舵娴嬶級 */
+    /** 玩家加入时间（用于超时检测） */
     private final Map<UUID, Long> joinTimes = new ConcurrentHashMap<>();
 
-    /** 鐜╁鐧诲綍浣嶇疆锛堢敤浜庝紶閫佸洖锛?*/
+    /** 玩家登录位置（用于传送回） */
     private final Map<UUID, double[]> loginPositions = new ConcurrentHashMap<>();
 
-    /** IP 灏佺璁板綍 <IP, 灏佺鍒版湡鏃堕棿鎴? */
+    /** IP 封禁记录 <IP, 封禁到期时间戳> */
     private final Map<String, Long> bannedIps = new ConcurrentHashMap<>();
 
-    /** IP 澶辫触璁℃暟 <IP, 澶辫触娆℃暟> */
+    /** IP 失败计数 <IP, 失败次数> */
     private final Map<String, Integer> ipFailCounts = new ConcurrentHashMap<>();
 
-    /** 鐜╁IP鏄犲皠 */
+    /** 玩家IP映射 */
     private final Map<UUID, String> playerIps = new ConcurrentHashMap<>();
 
-    /** 鏈櫥褰曠帺瀹剁殑鎿嶄綔灞忚斀璁℃暟锛堢敤浜庡彇娑堜簨浠舵椂妫€鏌ワ級 */
+    /** 未登录玩家的操作屏蔽计数（用于取消事件时检查） */
     private final Map<UUID, Boolean> frozenPlayers = new ConcurrentHashMap<>();
 
     private LoginManager() {}
@@ -52,10 +52,11 @@ public class LoginManager {
         return instance;
     }
 
-    // ==================== 鐘舵€佺鐞?====================
+    // ==================== 状态管理 ====================
 
     /**
-     * 鐜╁鍔犲叆鏈嶅姟鍣?     */
+     * 玩家加入服务器
+     */
     public void onPlayerJoin(ServerPlayer player) {
         UUID uuid = player.getUUID();
         String ip = getPlayerIp(player);
@@ -66,18 +67,20 @@ public class LoginManager {
 
         if (DatabaseManager.getInstance().isPlayerRegistered(uuid)) {
             playerStates.put(uuid, LoginState.NOT_LOGGED_IN);
-            LOGGER.info("鐜╁ {} 宸叉敞鍐岋紝绛夊緟鐧诲綍", player.getName().getString());
+            LOGGER.info("玩家 {} 已注册，等待登录", player.getName().getString());
         } else {
             playerStates.put(uuid, LoginState.UNREGISTERED);
-            LOGGER.info("鐜╁ {} 鏈敞鍐岋紝鎻愮ず娉ㄥ唽", player.getName().getString());
+            LOGGER.info("玩家 {} 未注册，提示注册", player.getName().getString());
         }
 
-        // 妫€鏌?IP 鏄惁琚皝绂侊紙鍐呭瓨灏佺锛?        if (isIpBanned(ip)) {
+        // 检查 IP 是否被封禁（内存封禁）
+        if (isIpBanned(ip)) {
             player.connection.disconnect(Component.literal(TextUtils.t("ban.ip_kick")));
             return;
         }
 
-        // 鍙戦€佹杩庢秷鎭?        LoginState state = playerStates.get(uuid);
+        // 发送欢迎消息
+        LoginState state = playerStates.get(uuid);
         if (state == LoginState.UNREGISTERED) {
             TextUtils.sendMsg(player, "welcome.title_register");
             TextUtils.sendMsg(player, "login.unregistered");
@@ -89,7 +92,8 @@ public class LoginManager {
     }
 
     /**
-     * 鐜╁绂诲紑鏈嶅姟鍣?     */
+     * 玩家离开服务器
+     */
     public void onPlayerDisconnect(ServerPlayer player) {
         UUID uuid = player.getUUID();
         playerStates.remove(uuid);
@@ -100,13 +104,15 @@ public class LoginManager {
     }
 
     /**
-     * 鑾峰彇鐜╁鐧诲綍鐘舵€?     */
+     * 获取玩家登录状态
+     */
     public LoginState getState(UUID uuid) {
         return playerStates.getOrDefault(uuid, LoginState.UNREGISTERED);
     }
 
     /**
-     * 璁剧疆鐜╁宸茬櫥褰?     */
+     * 设置玩家已登录
+     */
     public void setLoggedIn(UUID uuid) {
         playerStates.put(uuid, LoginState.LOGGED_IN);
         frozenPlayers.remove(uuid);
@@ -114,14 +120,15 @@ public class LoginManager {
     }
 
     /**
-     * 璁剧疆鐜╁宸茬櫥鍑?     */
+     * 设置玩家已登出
+     */
     public void setLoggedOut(UUID uuid) {
         playerStates.put(uuid, LoginState.NOT_LOGGED_IN);
         frozenPlayers.put(uuid, true);
     }
 
     /**
-     * 璁剧疆鐜╁涓烘湭娉ㄥ唽鐘舵€侊紙绠＄悊鍛樻敞閿€鏃讹級
+     * 设置玩家为未注册状态（管理员注销时）
      */
     public void setUnregistered(UUID uuid) {
         playerStates.put(uuid, LoginState.UNREGISTERED);
@@ -129,21 +136,23 @@ public class LoginManager {
     }
 
     /**
-     * 鍒ゆ柇鐜╁鏄惁宸茬櫥褰?     */
+     * 判断玩家是否已登录
+     */
     public boolean isLoggedIn(UUID uuid) {
         return playerStates.get(uuid) == LoginState.LOGGED_IN;
     }
 
     /**
-     * 鍒ゆ柇鐜╁鏄惁琚喕缁擄紙绂佹鎿嶄綔锛?     */
+     * 判断玩家是否被冻结（禁止操作）
+     */
     public boolean isFrozen(UUID uuid) {
         return frozenPlayers.getOrDefault(uuid, false);
     }
 
-    // ==================== 鐧诲綍浣嶇疆 ====================
+    // ==================== 登录位置 ====================
 
     /**
-     * 璁板綍鐜╁鐧诲綍鏃剁殑浣嶇疆
+     * 记录玩家登录时的位置
      */
     public void recordLoginPosition(ServerPlayer player) {
         loginPositions.put(player.getUUID(), new double[]{
@@ -152,16 +161,17 @@ public class LoginManager {
     }
 
     /**
-     * 鑾峰彇鐜╁鐧诲綍浣嶇疆
+     * 获取玩家登录位置
      */
     public double[] getLoginPosition(UUID uuid) {
         return loginPositions.get(uuid);
     }
 
-    // ==================== 瓒呮椂妫€娴?====================
+    // ==================== 超时检测 ====================
 
     /**
-     * 妫€鏌ョ帺瀹舵槸鍚︾櫥褰曡秴鏃?     */
+     * 检查玩家是否登录超时
+     */
     public boolean isLoginTimeout(UUID uuid) {
         Long joinTime = joinTimes.get(uuid);
         if (joinTime == null) return false;
@@ -172,7 +182,7 @@ public class LoginManager {
     }
 
     /**
-     * 鑾峰彇鍓╀綑鐧诲綍鏃堕棿
+     * 获取剩余登录时间
      */
     public long getRemainingTime(UUID uuid) {
         Long joinTime = joinTimes.get(uuid);
@@ -182,10 +192,10 @@ public class LoginManager {
         return Math.max(0, remaining / 1000);
     }
 
-    // ==================== IP 灏佺 ====================
+    // ==================== IP 封禁 ====================
 
     /**
-     * 鑾峰彇鐜╁ IP 鍦板潃
+     * 获取玩家 IP 地址
      */
     public String getPlayerIp(ServerPlayer player) {
         try {
@@ -202,24 +212,26 @@ public class LoginManager {
     }
 
     /**
-     * 璁板綍鐧诲綍澶辫触
-     * @return true 濡傛灉瑙﹀彂灏佺
+     * 记录登录失败
+     * @return true 如果触发封禁
      */
     public boolean recordLoginFail(UUID uuid) {
         String ip = playerIps.get(uuid);
         if (ip == null) return false;
 
-        // 鏁版嵁搴撳け璐ヨ鏁?        int dbFails = DatabaseManager.getInstance().incrementFailCount(uuid);
+        // 数据库失败计数
+        int dbFails = DatabaseManager.getInstance().incrementFailCount(uuid);
 
-        // 鍐呭瓨 IP 澶辫触璁℃暟
+        // 内存 IP 失败计数
         int ipFails = ipFailCounts.getOrDefault(ip, 0) + 1;
         ipFailCounts.put(ip, ipFails);
 
         int maxAttempts = ModConfig.getInstance().getMaxLoginAttempts();
 
-        // 妫€鏌ユ槸鍚﹁Е鍙戝皝绂?        if (ipFails >= maxAttempts) {
+        // 检查是否触发封禁
+        if (ipFails >= maxAttempts) {
             banIp(ip, ModConfig.getInstance().getBanDurationSeconds());
-            LOGGER.warn("IP {} 鍥犵櫥褰曞け璐ユ鏁拌繃澶氬凡琚复鏃跺皝绂?{} 绉?, ip, ModConfig.getInstance().getBanDurationSeconds());
+            LOGGER.warn("IP {} 因登录失败次数过多已被临时封禁 {} 秒", ip, ModConfig.getInstance().getBanDurationSeconds());
             return true;
         }
 
@@ -227,7 +239,7 @@ public class LoginManager {
     }
 
     /**
-     * 閲嶇疆鐧诲綍澶辫触璁℃暟
+     * 重置登录失败计数
      */
     public void resetLoginFails(UUID uuid) {
         String ip = playerIps.get(uuid);
@@ -238,7 +250,7 @@ public class LoginManager {
     }
 
     /**
-     * 灏佺 IP
+     * 封禁 IP
      */
     public void banIp(String ip, long durationSeconds) {
         long expiry = Instant.now().toEpochMilli() + (durationSeconds * 1000);
@@ -246,7 +258,8 @@ public class LoginManager {
     }
 
     /**
-     * 妫€鏌?IP 鏄惁琚皝绂?     */
+     * 检查 IP 是否被封禁
+     */
     public boolean isIpBanned(String ip) {
         Long expiry = bannedIps.get(ip);
         if (expiry == null) return false;
@@ -258,33 +271,34 @@ public class LoginManager {
     }
 
     /**
-     * 妫€鏌ョ帺瀹?IP 鏄惁琚皝绂?     */
+     * 检查玩家 IP 是否被封禁
+     */
     public boolean isPlayerBanned(UUID uuid) {
         return DatabaseManager.getInstance().isBanned(uuid);
     }
 
     /**
-     * 娓呯悊杩囨湡灏佺
+     * 清理过期封禁
      */
     public void cleanExpiredBans() {
         long now = Instant.now().toEpochMilli();
         bannedIps.entrySet().removeIf(entry -> now > entry.getValue());
     }
 
-    // ==================== 鐧藉悕鍗曞懡浠?====================
+    // ==================== 白名单命令 ====================
 
     /**
-     * 妫€鏌ュ懡浠ゆ槸鍚﹀湪鐧藉悕鍗曞唴锛堟湭鐧诲綍鏃跺彲浠ユ墽琛岋級
+     * 检查命令是否在白名单内（未登录时可以执行）
      */
     public static boolean isWhitelistedCommand(String command) {
         String cmd = command.toLowerCase().trim();
 
-        // 绉婚櫎寮€澶寸殑 /
+        // 移除开头的 /
         if (cmd.startsWith("/")) {
             cmd = cmd.substring(1);
         }
 
-        // 鑾峰彇鍛戒护鍚嶏紙绗竴涓崟璇嶏級
+        // 获取命令名（第一个单词）
         String commandName = cmd.split(" ")[0];
 
         return switch (commandName) {

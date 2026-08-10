@@ -19,8 +19,9 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 
 /**
- * 鐧诲綍绯荤粺 Mod 涓诲叆鍙?- Minecraft 1.21 鐗堟湰
- * 1.21 涓?TitleS2CPacket API 鏈夊彉鍖栵紝浣跨敤鏂扮増鏋勯€犳柟寮? */
+ * 登录系统 Mod 主入口 - Minecraft 1.21 版本
+ * 1.21 中 TitleS2CPacket API 有变化，使用新版构造方式
+ */
 public class LoginMod implements ModInitializer {
 
     public static final String MOD_ID = "loginmod";
@@ -35,46 +36,50 @@ public class LoginMod implements ModInitializer {
     public void onInitialize() {
         long startTime = System.currentTimeMillis();
         LOGGER.info("======================================");
-        LOGGER.info("  鐧诲綍绯荤粺 LoginMod v{} (1.21.1)", "?");
+        LOGGER.info("  登录系统 LoginMod v{} (1.21.1)", "?");
         LOGGER.info("======================================");
 
-        // 娉ㄥ唽鐗堟湰閫傞厤鍣?        TitleHelper.setInstance(new v1_21TitleHelper());
+        // 注册版本适配器
+        TitleHelper.setInstance(new v1_21TitleHelper());
 
-        // 鏈嶅姟鍣ㄥ惎鍔ㄦ椂鍒濆鍖?        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+        // 服务器启动时初始化
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             SERVER = server;
             Path configDir = server.getServerDirectory().resolve("config").resolve("loginmod");
             ModConfig.load(configDir);
             LanguageManager.init();
             DatabaseManager.init(configDir);
             DatabaseManager.getInstance().connect();
-            LOGGER.info("鐧诲綍绯荤粺鍒濆鍖栧畬鎴?({}ms)", System.currentTimeMillis() - startTime);
+            LOGGER.info("登录系统初始化完成 ({}ms)", System.currentTimeMillis() - startTime);
         });
 
-        // 娉ㄥ唽鍛戒护
+        // 注册命令
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             RegisterCommand.register(dispatcher, registryAccess, environment);
             LoginCommand.register(dispatcher, registryAccess, environment);
             LogoutCommand.register(dispatcher, registryAccess, environment);
             ChangePasswordCommand.register(dispatcher, registryAccess, environment);
             AdminCommand.register(dispatcher, registryAccess, environment);
-            LOGGER.info("鐧诲綍绯荤粺鍛戒护宸叉敞鍐?);
+            LOGGER.info("登录系统命令已注册");
         });
 
-        // 娉ㄥ唽浜嬩欢澶勭悊鍣?        PlayerHandler.register();
+        // 注册事件处理器
+        PlayerHandler.register();
 
-        // Tick 浜嬩欢
+        // Tick 事件
         ServerTickEvents.START_SERVER_TICK.register(PlayerHandler::onServerTick);
 
-        // 鏈嶅姟鍣ㄥ叧闂?        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-            LOGGER.info("姝ｅ湪鍏抽棴鐧诲綍绯荤粺...");
+        // 服务器关闭
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            LOGGER.info("正在关闭登录系统...");
             DatabaseManager.getInstance().close();
-            LOGGER.info("鐧诲綍绯荤粺宸插叧闂?);
+            LOGGER.info("登录系统已关闭");
         });
 
-        LOGGER.info("鐧诲綍绯荤粺 LoginMod 1.21.1 鍔犺浇瀹屾垚");
+        LOGGER.info("登录系统 LoginMod 1.21.1 加载完成");
     }
 
-    /** 1.21 Title 閫傞厤鍣?*/
+    /** 1.21 Title 适配器 */
     @SuppressWarnings("unchecked")
     private static class v1_21TitleHelper implements TitleHelper {
         @Override
@@ -87,11 +92,11 @@ public class LoginMod implements ModInitializer {
                 handler.send((net.minecraft.network.protocol.Packet<?>) animPkt.getConstructor(int.class, int.class, int.class)
                     .newInstance(10, 60, 20));
                 handler.send((net.minecraft.network.protocol.Packet<?>) subtitlePkt.getConstructor(Component.class)
-                    .newInstance(Component.literal("搂e" + subtitle)));
+                    .newInstance(Component.literal("§e" + subtitle)));
                 handler.send((net.minecraft.network.protocol.Packet<?>) titlePkt.getConstructor(Component.class)
-                    .newInstance(Component.literal("搂6" + title)));
+                    .newInstance(Component.literal("§6" + title)));
             } catch (Exception e) {
-                player.sendSystemMessage(Component.literal("搂6" + title + " 搂e" + subtitle), true);
+                player.sendSystemMessage(Component.literal("§6" + title + " §e" + subtitle), true);
             }
         }
     }

@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * 鐧诲綍绯荤粺閰嶇疆
+ * 登录系统配置
  */
 public class ModConfig {
 
@@ -76,7 +76,7 @@ public class ModConfig {
     }
 
     /**
-     * 鍔犺浇閰嶇疆
+     * 加载配置
      */
     public static ModConfig load(Path configDir) {
         configPath = configDir.resolve("loginmod.json");
@@ -86,44 +86,45 @@ public class ModConfig {
             try {
                 String json = Files.readString(configPath);
                 instance = GSON.fromJson(json, ModConfig.class);
-                logger.info("閰嶇疆宸插姞杞? {}", configPath);
+                logger.info("配置已加载: {}", configPath);
             } catch (Exception e) {
-                logger.error("鍔犺浇閰嶇疆澶辫触锛屼娇鐢ㄩ粯璁ら厤缃?, e);
+                logger.error("加载配置失败，使用默认配置", e);
                 instance = new ModConfig();
             }
         } else {
             instance = new ModConfig();
             save();
-            logger.info("宸插垱寤洪粯璁ら厤缃枃浠? {}", configPath);
+            logger.info("已创建默认配置文件: {}", configPath);
         }
 
         return instance;
     }
 
     /**
-     * 淇濆瓨閰嶇疆鍒版枃浠?     */
+     * 保存配置到文件
+     */
     public static void save() {
         if (configPath == null || instance == null) return;
         try {
             Files.createDirectories(configPath.getParent());
             Files.writeString(configPath, GSON.toJson(instance));
         } catch (IOException e) {
-            LoginMod.LOGGER.error("淇濆瓨閰嶇疆澶辫触", e);
+            LoginMod.LOGGER.error("保存配置失败", e);
         }
     }
 
     /**
-     * 閲嶆柊鍔犺浇閰嶇疆
+     * 重新加载配置
      */
     public static boolean reload() {
         if (configPath != null && Files.exists(configPath)) {
             try {
                 String json = Files.readString(configPath);
                 instance = GSON.fromJson(json, ModConfig.class);
-                LoginMod.LOGGER.info("閰嶇疆宸查噸鏂板姞杞?);
+                LoginMod.LOGGER.info("配置已重新加载");
                 return true;
             } catch (Exception e) {
-                LoginMod.LOGGER.error("閲嶆柊鍔犺浇閰嶇疆澶辫触", e);
+                LoginMod.LOGGER.error("重新加载配置失败", e);
                 return false;
             }
         }
