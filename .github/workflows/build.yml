@@ -1,8 +1,8 @@
 # ============================================================
-# QLogin v1_21_1-neoforge standalone build
+# QLogin v1_21-neoforge standalone build
 # Branch: v1.21.1-neoforge | Java: 21
 # ============================================================
-name: Build v1_21_1-neoforge
+name: Build v1_21-neoforge
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: "Build v1_21_1-neoforge"
+    name: "Build v1_21-neoforge"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,11 +34,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build
-        run: ./gradlew :v1_21_1-neoforge:build --no-daemon
+        run: ./gradlew :v1_21-neoforge:build --no-daemon
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: v1_21_1-neoforge
-          path: v1_21_1-neoforge/build/libs/*.jar
+          name: v1_21-neoforge
+          path: v1_21-neoforge/build/libs/*.jar
           if-no-files-found: warn
